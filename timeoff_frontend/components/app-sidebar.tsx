@@ -83,7 +83,7 @@ const data = {
         },
         {
           title: "Reset password",
-          url: "#",
+          url: "auth/reset-password",
         },
       ],
     },
