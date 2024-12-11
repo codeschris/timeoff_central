@@ -20,17 +20,20 @@ Welcome to the Timeoff Central repository. This project is designed to manage an
 To get started with the project, follow these steps:
 
 1. Clone the repository:
+
     ```bash
     git clone https://github.com/yourusername/timeoff_central.git
     ```
 
 2. Install dependencies for the frontend:
+
     ```bash
     cd frontend
     npm install
     ```
 
 3. Install dependencies for the backend:
+
     ```bash
     cd backend
     pip install -r requirements.txt
@@ -38,10 +41,13 @@ To get started with the project, follow these steps:
 
 4. Start the development servers:
     - Frontend:
+
         ```bash
         npm run dev
         ```
+
     - Backend:
+
         ```bash
         python manage.py runserver
         ```
