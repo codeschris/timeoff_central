@@ -47,14 +47,6 @@ const data = {
           title: "Home",
           url: "/",
         },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
       ],
     },
     {
@@ -64,7 +56,7 @@ const data = {
       items: [
         {
           title: "List All",
-          url: "#",
+          url: "/employees/all",
         },
         {
           title: "Search Employee",
@@ -83,7 +75,7 @@ const data = {
         },
         {
           title: "Reset password",
-          url: "auth/reset-password",
+          url: "/auth/reset-password",
         },
       ],
     },

@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "../theme-provider";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,12 +30,25 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
   ["/auth/login", "/auth/reset-password", "/auth/register"].includes(pathname ?? "");
 
   return isLoginPage ? (
-    <>
+    <body>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
         <MetaTags/>
         <main>{children}</main>
-    </>
+      </ThemeProvider>
+    </body>
   ) : (
     <>
+    <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+    >
     <MetaTags/> {/* This is the metatags component to avoid the 'use client' error when using the metatags library */}
     <SidebarProvider>
       <AppSidebar />
@@ -52,7 +66,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Pages</BreadcrumbPage>
+                  <BreadcrumbPage>Home</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -61,6 +75,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
         <main>{children}</main>
       </SidebarInset>
     </SidebarProvider>
+    </ThemeProvider>
     </>
   );
 }
