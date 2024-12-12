@@ -28,12 +28,7 @@ const data = {
     {
       name: "SolFruit",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Sitima Packaging",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "Timeoff Central (Enterprise)",
     }
   ],
   navMain: [
