@@ -55,7 +55,7 @@ const data = {
         },
         {
           title: "Search Employee",
-          url: "#",
+          url: "/employees/search_employees",
         },
       ],
     },
