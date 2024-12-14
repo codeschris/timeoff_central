@@ -7,10 +7,15 @@ from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
 """
-Views for user registration and authentication.
+Views
+** User registration and authentication **
 
 - RegisterView: This view is used to register a new user. It accepts a POST request with the user details and saves the user to the database.
 - LoginView: This view is used to authenticate a user. It accepts a POST request with the user's email and password, and returns a token if the user is authenticated.
+
+** Leave management **
+- TakeLeaveView: This view is used to record a leave request. It accepts a POST request with the start and end date of the leave, 
+validates the request, and updates the user's leave days accordingly.
 
 ** Testing **
 
