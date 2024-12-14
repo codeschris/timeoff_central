@@ -1,9 +1,9 @@
 from django.urls import path
-from django.http import HttpResponse
-
-def hello_chris(request):
-    return HttpResponse("Hello Chris")
+from .views import RegisterView, LoginView, TakeLeaveView , hello_chris
 
 urlpatterns = [
-    path('hello-chris/', hello_chris),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('take-leave/', TakeLeaveView.as_view(), name='take_leave'),
+    path('hello_chris/', hello_chris, name='hello_chris')
 ]
