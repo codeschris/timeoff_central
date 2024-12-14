@@ -3,3 +3,4 @@
 /lib
 *.cfg
 .TAG
+.env
