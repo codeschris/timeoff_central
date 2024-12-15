@@ -27,20 +27,18 @@ interface LayoutComponentProps {
 export default function LayoutComponent({ children }: LayoutComponentProps) {
   const pathname = usePathname();
   const isLoginPage =
-  ["/auth/login", "/auth/reset-password", "/auth/register"].includes(pathname ?? "");
+  ["/auth/login", "/auth/reset-password", "/auth/register-account"].includes(pathname ?? "");
 
   return isLoginPage ? (
-    <body>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <MetaTags/>
-        <main>{children}</main>
-      </ThemeProvider>
-    </body>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <MetaTags/>
+      <main>{children}</main>
+    </ThemeProvider>
   ) : (
     <>
     <ThemeProvider
@@ -53,7 +51,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sid</header>ebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
