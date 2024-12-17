@@ -47,6 +47,9 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     role = models.CharField(max_length=50, choices=MANAGEMENT_ROLE_CHOICES, null=True, blank=True)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     def __str__(self):
         return self.name
     

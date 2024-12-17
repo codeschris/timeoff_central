@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, LeaveDays
+from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -14,9 +15,9 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             employee_id=validated_data['employee_id'],
             user_type=validated_data['user_type'],
-            role=validated_data.get('role')
+            role=validated_data.get('role'),
         )
-        user.set_password(validated_data['password'])
+        user.password = make_password(validated_data['password'])  # Hash the password
         user.save()
         return user
 

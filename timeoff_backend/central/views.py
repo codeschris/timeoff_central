@@ -3,9 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, TakeLeaveSerializer
+from .models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 """
 Views
@@ -35,7 +36,9 @@ class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        user = authenticate(email=email, password=password)
+
+        # Authenticate using email
+        user = authenticate(username=email, password=password)
         if user:
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'message': 'Login successful'}, status=status.HTTP_200_OK)
@@ -53,10 +56,11 @@ class TakeLeaveView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserDetailsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny] # Switch back to isAuthenticated
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        employees = User.objects.all() 
+        serializer = UserSerializer(employees, many=True) 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Testing view
