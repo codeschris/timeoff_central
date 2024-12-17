@@ -5,6 +5,7 @@ from rest_framework import status
 from .serializers import UserSerializer, TakeLeaveSerializer
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 
 """
 Views
@@ -50,6 +51,13 @@ class TakeLeaveView(APIView):
                 "remaining_days": leave_days.remaining_days
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Testing view
 def hello_chris(request):
