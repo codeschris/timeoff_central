@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { returnEmployees } from '@/pages/utils/api';
 import {
     Table,
     TableBody,
@@ -5,17 +7,33 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-
+} from '@/components/ui/table';
 import Link from 'next/link';
 
-const employees = [
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    { id: 3, name: 'Alice Johnson' },
-];
-
 export default function EmployeesListTable() {
+    const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const data = await returnEmployees(); // Fetch data from API
+                setEmployees(data); // Set the fetched employees
+            } catch (err) {
+                console.error(err);
+                setError('Failed to load employees');
+            } finally {
+                setLoading(false); // Stop loading spinner
+            }
+        };
+
+        fetchEmployees();
+    }, []);
+
+    if (loading) return <div>Loading employees...</div>;
+    if (error) return <div>{error}</div>;
+
     return (
         <Table className="container mx-auto px-12">
             <TableHeader>
@@ -25,7 +43,7 @@ export default function EmployeesListTable() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {employees.map(employee => (
+                {employees.map((employee) => (
                     <TableRow key={employee.id}>
                         <TableCell className="font-medium">
                             <Link href={`/employee/${employee.id}`}>
