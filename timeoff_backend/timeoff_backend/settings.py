@@ -137,3 +137,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Jazzmin settings
+JAZZMIN_SETTINGS = {
+    "site_title": "Timeoff Central Admin",
+    "site_header": "Timeoff Central",
+    "site_brand": "Timeoff Central",
+    "copyright": "Timeoff Central",
+}
