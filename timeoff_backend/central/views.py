@@ -56,13 +56,21 @@ class TakeLeaveView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserDetailsView(APIView):
-    permission_classes = [AllowAny] # Switch back to isAuthenticated
+    permission_classes = [AllowAny]  # Switch back to IsAuthenticated if needed
 
-    def get(self, request):
-        employees = User.objects.all() 
-        serializer = UserSerializer(employees, many=True) 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+    def get(self, request, id=None):
+        if id:
+            try:
+                employee = User.objects.get(id=id)
+                serializer = UserSerializer(employee)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            employees = User.objects.all()
+            serializer = UserSerializer(employees, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
 # Testing view
 def hello_chris(request):
     return HttpResponse("Hello Chris")
