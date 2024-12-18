@@ -21,7 +21,13 @@ export const returnHello = async () => {
 
 // Fetch employees
 export const returnEmployees = async () => {
-  const response = await API.get('/employees/'); // No need for Authorization header
+  const response = await API.get('/employees/');
+  return response.data;
+};
+
+// Fetch single employee
+export const returnEmployee = async (id: string) => {
+  const response = await API.get(`/employees/${id}/`);
   return response.data;
 };
 
