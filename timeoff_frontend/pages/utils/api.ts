@@ -31,6 +31,12 @@ export const returnEmployee = async (id: string) => {
   return response.data;
 };
 
+// Take leave
+export const takeLeave = async (employeeId: string, startDate: string, endDate: string) => {
+  const response = await API.post(`/${employeeId}/leave/`, { startDate, endDate });
+  return response.data;
+};
+
 // Login user
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {

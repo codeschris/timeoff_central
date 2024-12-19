@@ -4,6 +4,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { returnEmployee } from '../utils/api';
+import { DatePickerWithRange } from '@/components/ui/date-picker';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Employee {
     id: string;
@@ -20,8 +22,7 @@ const EmployeePage = () => {
         if (id) {
             const fetchEmployee = async () => {
                 try {
-                    // Call the API with the UUID
-                    const data = await returnEmployee(id as string); // Pass id directly as string
+                    const data = await returnEmployee(id as string);
                     setEmployee(data);
                 } catch (error) {
                     console.error('Error fetching employee:', error);
@@ -32,7 +33,7 @@ const EmployeePage = () => {
     }, [id]);
 
     const handleRequestLeave = () => {
-        alert('Leave requested!');
+        alert('Leave requested!'); // Check: pass an alert then send an email to HR about the leave request so they can approve it
     };
 
     if (!employee) {
@@ -57,7 +58,15 @@ const EmployeePage = () => {
                 </div>
             </div>
             <div className='mt-6'>
-                <Button onClick={handleRequestLeave}>Request Leave</Button>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button>Request Leave</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <DatePickerWithRange />
+                        <Button onClick={handleRequestLeave} className='mt-4'>Submit</Button>
+                    </PopoverContent>
+                </Popover>
             </div>
         </div>
     );
