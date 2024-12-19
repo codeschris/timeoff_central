@@ -52,8 +52,15 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.name
-    
-# Leave days model
+
+    @property
+    def total_days(self):
+        return self.leavedays.total_days if hasattr(self, 'leavedays') else 0
+
+    @property
+    def days_taken(self):
+        return self.leavedays.days_taken if hasattr(self, 'leavedays') else 0
+
 class LeaveDays(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     total_days = models.IntegerField(default=21)

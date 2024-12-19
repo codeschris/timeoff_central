@@ -4,10 +4,15 @@ from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    total_days = serializers.ReadOnlyField()
+    days_taken = serializers.ReadOnlyField()
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'employee_id', 'password', 'user_type', 'role']
+        fields = ['id', 'name', 'email', 'employee_id', 'password', 'user_type', 'role', 'total_days', 'days_taken']
+        extra_kwargs = {
+            'password': {'write_only': True}  # Ensure password is write-only
+        }
 
     def create(self, validated_data):
         user = User(

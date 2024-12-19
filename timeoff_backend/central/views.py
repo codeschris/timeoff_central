@@ -7,6 +7,7 @@ from .models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from datetime import datetime
 
 """
 Views
@@ -45,13 +46,25 @@ class LoginView(APIView):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 class TakeLeaveView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         serializer = TakeLeaveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            leave_days = serializer.save()
+            leave_days = serializer.save(user=request.user)
+            specific_days = request.data.get('specific_days', [])
+            
+            # Calculate the number of days between the specific dates
+            date_format = "%d/%m/%Y"
+            specific_dates = [datetime.strptime(date, date_format) for date in specific_days]
+            specific_dates.sort()
+            num_days = (specific_dates[-1] - specific_dates[0]).days + 1 if specific_dates else 0
+            
             return Response({
-                "message": "Leave recorded successfully!",
-                "remaining_days": leave_days.remaining_days
+            "message": "Leave recorded successfully!",
+            "remaining_days": leave_days.remaining_days,
+            "specific_days": specific_days,
+            "num_days": num_days
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
