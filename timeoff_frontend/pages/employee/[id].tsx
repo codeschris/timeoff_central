@@ -8,12 +8,12 @@ import { returnEmployee } from '../utils/api';
 interface Employee {
     id: string;
     name: string;
-    leaveDaysRemaining: number;
+    total_days: number;
 }
 
 const EmployeePage = () => {
     const router = useRouter();
-    const { id } = router.query; // id will be a string (UUID)
+    const { id } = router.query;
     const [employee, setEmployee] = useState<Employee | null>(null);
 
     useEffect(() => {
@@ -48,7 +48,7 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.id}</p>
-                            <p className='mb-2'><strong>Leave Days Remaining:</strong> {employee.leaveDaysRemaining}</p>
+                            <p className='mb-2'><strong>Leave Days Remaining:</strong> {employee.total_days}</p>
                         </CardContent>
                     </Card>
                 </div>
