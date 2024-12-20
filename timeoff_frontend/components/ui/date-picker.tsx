@@ -13,11 +13,23 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import { takeLeave } from "@/pages/utils/api"
 
 export function DatePickerWithRange({
     className,
 }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>(undefined)
+
+    const handleTakeLeave = async () => {
+        if (date?.from && date?.to) {
+            try {
+                const response = await takeLeave("user-id", format(date.from, "yyyy-MM-dd"), format(date.to, "yyyy-MM-dd"))
+                console.log("Leave taken successfully:", response)
+            } catch (error) {
+                console.error("Error taking leave:", error)
+            }
+        }
+    }
 
     return (
         <div className={cn("grid gap-2", className)}>
@@ -57,6 +69,9 @@ export function DatePickerWithRange({
                     />
                 </PopoverContent>
             </Popover>
+            <Button onClick={handleTakeLeave} disabled={!date?.from || !date?.to}>
+                Take Leave
+            </Button>
         </div>
     )
 }

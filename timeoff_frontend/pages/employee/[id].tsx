@@ -32,10 +32,6 @@ const EmployeePage = () => {
         }
     }, [id]);
 
-    const handleRequestLeave = () => {
-        alert('Leave requested!'); // Check: pass an alert then send an email to HR about the leave request so they can approve it
-    };
-
     if (!employee) {
         return <div>Loading...</div>;
     }
@@ -64,7 +60,6 @@ const EmployeePage = () => {
                     </PopoverTrigger>
                     <PopoverContent>
                         <DatePickerWithRange />
-                        <Button onClick={handleRequestLeave} className='mt-4'>Submit</Button>
                     </PopoverContent>
                 </Popover>
             </div>

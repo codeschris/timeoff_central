@@ -27,13 +27,13 @@ export const returnEmployees = async () => {
 
 // Fetch single employee
 export const returnEmployee = async (id: string) => {
-  const response = await API.get(`/employees/${id}/`);
+  const response = await API.get(`/employee/${id}/`);
   return response.data;
 };
 
-// Take leave
-export const takeLeave = async (employeeId: string, startDate: string, endDate: string) => {
-  const response = await API.post(`/${employeeId}/leave/`, { startDate, endDate });
+// Take leave: Test after implementing authentication
+export const takeLeave = async (id: string, startDate: string, endDate: string) => {
+  const response = await API.post('/take-leave/', { startDate, endDate });
   return response.data;
 };
 
