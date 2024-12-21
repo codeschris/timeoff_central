@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.middleware.csrf import get_token
 from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
 
 """
 Views
@@ -51,7 +52,11 @@ class RegisterView(APIView):
     
 # Login view
 class LoginView(View):
+    @method_decorator(csrf_exempt)
     @method_decorator(require_POST)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def post(self, request):
         try:
             data = json.loads(request.body)
