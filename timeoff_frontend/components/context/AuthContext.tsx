@@ -65,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setIsAuthenticated(true);
       setError("");
+      window.location.href = "/"; // Redirect to home page once authenticated
     } catch (err) {
       console.error(err);
       setError("Wrong email or password.");
