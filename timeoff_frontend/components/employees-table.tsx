@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 
 export default function EmployeesListTable() {
-    const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
+    const [employees, setEmployees] = useState<{ employee_id: string; name: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -38,20 +38,14 @@ export default function EmployeesListTable() {
         <Table className="container mx-auto px-12">
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-[100px]">ID</TableHead>
                     <TableHead>Name</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {employees.map((employee) => (
-                    <TableRow key={employee.id}>
-                        <TableCell className="font-medium">
-                            <Link href={`/employee/${employee.id}`}>
-                                {employee.id}
-                            </Link>
-                        </TableCell>
+                    <TableRow key={employee.employee_id}>
                         <TableCell>
-                            <Link href={`/employee/${employee.id}`}>
+                            <Link href={`/employee/${employee.employee_id}`}>
                                 {employee.name}
                             </Link>
                         </TableCell>

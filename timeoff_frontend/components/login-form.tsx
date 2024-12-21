@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
-import { loginUser } from "@/pages/utils/api";
+import { useState, useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,23 +8,11 @@ import { Label } from "@/components/ui/label";
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  interface LoginError {
-    error: string;
-  }
+  const { login, error } = useContext(AuthContext);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    try {
-      const { token } = await loginUser(email, password);
-      localStorage.setItem("token", token); // Store token
-      router.push("/"); 
-    } catch (err) {
-      setError((err as LoginError).error || "Invalid credentials");
-    }
+    await login(email, password);
   };
 
   return (

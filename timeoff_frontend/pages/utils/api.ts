@@ -1,17 +1,12 @@
 import axios from 'axios';
-
-interface LoginResponse {
-  token: string;
-  message: string;
-}
-
-interface LoginError {
-  error: string;
-}
+import Cookies from 'universal-cookie';
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
+  withCredentials: true,
 });
+
+const cookies = new Cookies();
 
 // Fetch greeting
 export const returnHello = async () => {
@@ -26,8 +21,8 @@ export const returnEmployees = async () => {
 };
 
 // Fetch single employee
-export const returnEmployee = async (id: string) => {
-  const response = await API.get(`/employee/${id}/`);
+export const returnEmployee = async (employee_id: string) => {
+  const response = await API.get(`/employee/${employee_id}/`);
   return response.data;
 };
 
@@ -38,15 +33,12 @@ export const takeLeave = async (id: string, startDate: string, endDate: string) 
 };
 
 // Login user
-export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-  try {
-    const response = await API.post<LoginResponse>('/login/', { email, password });
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw (error.response.data as LoginError) || { error: 'Something went wrong' };
-    } else {
-      throw { error: 'Something went wrong' };
-    }
-  }
+export const loginUser = async (email: string, password: string) => {
+  const csrfToken = cookies.get("csrftoken"); // Get CSRF token from cookies
+
+  const response = await API.post("/login/", { email, password }, {
+    headers: { "X-CSRFToken": csrfToken },
+  });
+
+  return response.data;
 };

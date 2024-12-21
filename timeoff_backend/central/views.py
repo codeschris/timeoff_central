@@ -1,12 +1,18 @@
-from django.http import HttpResponse
-from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse, HttpResponse
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+import json
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.views import APIView
 from .serializers import UserSerializer, TakeLeaveSerializer
 from .models import User
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from django.middleware.csrf import get_token
 from datetime import datetime
 
 """
@@ -25,6 +31,16 @@ validates the request, and updates the user's leave days accordingly.
 - hello_chris: A simple view that returns a "Hello Chris" message when accessed. Used for testing purposes.
 
 """
+
+# CSRF token view
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFTokenView(View):
+    def get(self, request):
+        response = JsonResponse({'detail': 'CSRF cookie set'})
+        response['X-CSRFToken'] = get_token(request)
+        return response
+
+# Register view
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -33,18 +49,40 @@ class RegisterView(APIView):
             return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class LoginView(APIView):
+# Login view
+class LoginView(View):
+    @method_decorator(require_POST)
     def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'detail': 'Invalid JSON data.'}, status=400)
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if email is None or password is None:
+            return JsonResponse({'detail': 'Please provide email and password.'}, status=400)
 
         # Authenticate using email
-        user = authenticate(username=email, password=password)
-        if user:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'message': 'Login successful'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = authenticate(request, email=email, password=password)
+
+        if user is None:
+            return JsonResponse({'detail': 'Invalid credentials.'}, status=400)
+
+        login(request, user)
+        return JsonResponse({'detail': 'Successfully logged in.'})
     
+# Logout view
+class LogoutView(View):
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
+
+        logout(request)
+        return JsonResponse({'detail': 'Successfully logged out.'})
+
+# Take leave view    
 class TakeLeaveView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -67,14 +105,15 @@ class TakeLeaveView(APIView):
             "num_days": num_days
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class UserDetailsView(APIView):
-    permission_classes = [AllowAny]  # Switch back to IsAuthenticated if needed
 
-    def get(self, request, id=None):
-        if id:
+# User details view    
+class UserDetailsView(APIView):
+    permission_classes = [AllowAny]  # Switch to IsAuthenticated if needed
+
+    def get(self, request, employee_id=None):
+        if employee_id:
             try:
-                employee = User.objects.get(id=id)
+                employee = User.objects.get(employee_id=employee_id)
                 serializer = UserSerializer(employee)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except User.DoesNotExist:
@@ -83,6 +122,24 @@ class UserDetailsView(APIView):
             employees = User.objects.all()
             serializer = UserSerializer(employees, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
+# Session view
+class SessionView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def get(request, format=None):
+        return JsonResponse({'isAuthenticated': True})
+
+
+class WhoAmIView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def get(request, format=None):
+        return JsonResponse({'username': request.user.username})
     
 # Testing view
 def hello_chris(request):

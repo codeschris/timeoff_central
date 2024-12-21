@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser',
     'rest_framework_simplejwt.token_blacklist',
     'central'
 ]
@@ -60,9 +59,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'timeoff_backend.urls'
 AUTH_USER_MODEL = 'central.User'
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]
 
 TEMPLATES = [
     {
@@ -98,11 +94,11 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
     ],
 }
 
@@ -118,13 +114,25 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SITE_NAME = "Timeoff Central"
 DOMAIN = 'localhost:3000'
 
-DJOSER = {
-    "PASSWORD_RESET_CONFIRM_URL": "auth/password/reset-password-confirmation/?uid={uid}&token={token}",
-    "ACTIVATION_URL": "#/activate/{uid}/{token}",
-    "SEND_ACTIVATION_EMAIL": False,
-    "SERIALIZERS": {},
-    "LOGIN_FIELD": "email",
-}
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000', 
+    'http://127.0.0.1:3000'
+]
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_ALLOW_CREDENTIALS = True
+
+# PROD ONLY
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
 
 # Password validation
