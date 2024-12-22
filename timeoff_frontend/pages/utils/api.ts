@@ -34,11 +34,8 @@ export const takeLeave = async (employee_id: string, start_date: string, end_dat
 
 // Login user
 export const loginUser = async (email: string, password: string) => {
-  const csrfToken = cookies.get("csrftoken"); // Get CSRF token from cookies
-
-  const response = await API.post("/login/", { email, password }, {
-    headers: { "X-CSRFToken": csrfToken },
-  });
-
+  const response = await API.post('/login/', { email, password });
+  const { token } = response.data;
+  cookies.set('token', token, { path: '/' });
   return response.data;
 };

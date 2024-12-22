@@ -1,18 +1,26 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { useState } from "react";
+import { loginUser } from "@/pages/utils/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/router";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, error } = useContext(AuthContext);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    try {
+      await loginUser(email, password);
+      setError(null);
+      router.push("/");
+    } catch {
+      setError("Invalid email or password");
+    }
   };
 
   return (
