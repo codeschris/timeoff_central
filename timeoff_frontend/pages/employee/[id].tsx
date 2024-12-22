@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 interface Employee {
     id: string;
+    employee_id: string;
     name: string;
     total_days: number;
 }
@@ -44,7 +45,7 @@ const EmployeePage = () => {
                         <CardContent>
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
-                            <p className='mb-2'><strong>ID:</strong> {employee.id}</p>
+                            <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
                             <p className='mb-2'><strong>Leave Days Remaining:</strong> {employee.total_days}</p>
                         </CardContent>
                     </Card>

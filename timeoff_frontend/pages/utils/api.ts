@@ -27,8 +27,8 @@ export const returnEmployee = async (employee_id: string) => {
 };
 
 // Take leave: Test after implementing authentication
-export const takeLeave = async (id: string, startDate: string, endDate: string) => {
-  const response = await API.post('/take-leave/', { startDate, endDate });
+export const takeLeave = async (employee_id: string, start_date: string, end_date: string) => {
+  const response = await API.post('/take-leave/', { employee_id, start_date, end_date });
   return response.data;
 };
 
