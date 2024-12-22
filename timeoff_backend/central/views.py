@@ -41,31 +41,14 @@ class RegisterView(APIView):
     
 # Login view
 class LoginView(APIView):
-    @method_decorator(csrf_exempt)
-    @method_decorator(require_POST)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'detail': 'Invalid JSON data.'}, status=400)
-
-        email = data.get('email')
-        password = data.get('password')
-
-        if email is None or password is None:
-            return JsonResponse({'detail': 'Please provide email and password.'}, status=400)
-
-        # Authenticate using email
+        email = request.data.get('email')
+        password = request.data.get('password')
         user = authenticate(request, email=email, password=password)
-
-        if user is None:
-            return JsonResponse({'detail': 'Invalid credentials.'}, status=400)
-
-        login(request, user)
-        return JsonResponse({'detail': 'Successfully logged in.'})
+        if user is not None:
+            login(request, user)
+            return Response({'message': 'Login successful!'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     
 # Logout view
 class LogoutView(View):
