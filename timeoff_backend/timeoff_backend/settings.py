@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt.token_blacklist',
     'central'
 ]
 
@@ -96,44 +95,20 @@ DATABASES = {
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-}
-
-SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-SITE_NAME = "Timeoff Central"
-DOMAIN = 'localhost:3000'
-
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_HTTPONLY = True
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000', 
-    'http://127.0.0.1:3000'
-]
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000'
 ]
-CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_ALLOW_CREDENTIALS = True
-
-# PROD ONLY
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

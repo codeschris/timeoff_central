@@ -72,6 +72,10 @@ const data = {
           title: "Reset password",
           url: "/auth/reset-password",
         },
+        {
+          title: "Print approved leaves",
+          url: "/print-approved-leaves",
+        }
       ],
     },
   ],

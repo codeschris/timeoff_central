@@ -2,17 +2,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 import json
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer, TakeLeaveSerializer
-from .models import User
+from .models import LeaveDays, User
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from django.middleware.csrf import get_token
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 
@@ -33,14 +30,6 @@ validates the request, and updates the user's leave days accordingly.
 
 """
 
-# CSRF token view
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class GetCSRFTokenView(View):
-    def get(self, request):
-        response = JsonResponse({'detail': 'CSRF cookie set'})
-        response['X-CSRFToken'] = get_token(request)
-        return response
-
 # Register view
 class RegisterView(APIView):
     def post(self, request):
@@ -51,7 +40,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 # Login view
-class LoginView(View):
+class LoginView(APIView):
     @method_decorator(csrf_exempt)
     @method_decorator(require_POST)
     def dispatch(self, *args, **kwargs):
@@ -89,27 +78,55 @@ class LogoutView(View):
 
 # Take leave view    
 class TakeLeaveView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
+        employee_id = request.data.get('employee_id')
+        if not employee_id:
+            return Response({'detail': 'Employee ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(employee_id=employee_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = TakeLeaveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            leave_days = serializer.save(user=request.user)
+            leave_days = serializer.save(user=user)
             specific_days = request.data.get('specific_days', [])
             
             # Calculate the number of days between the specific dates
-            date_format = "%d/%m/%Y"
+            date_format = "%Y/%m/%d"
             specific_dates = [datetime.strptime(date, date_format) for date in specific_days]
             specific_dates.sort()
             num_days = (specific_dates[-1] - specific_dates[0]).days + 1 if specific_dates else 0
             
             return Response({
-            "message": "Leave recorded successfully!",
-            "remaining_days": leave_days.remaining_days,
-            "specific_days": specific_days,
-            "num_days": num_days
+                "message": "Leave recorded successfully!",
+                "remaining_days": leave_days.remaining_days,
+                "specific_days": specific_days,
+                "num_days": num_days
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# Leave approval view
+class LeaveApprovalView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, leave_id):
+        if not request.user.is_management:
+            return Response({'detail': 'You do not have permission to approve leaves.'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            leave_request = LeaveDays.objects.get(id=leave_id)
+        except LeaveDays.DoesNotExist:
+            return Response({'detail': 'Leave request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        leave_request.status = 'Approved'
+        leave_request.approved_by = request.user
+        leave_request.save()
+
+        return Response({'detail': 'Leave request approved successfully.'}, status=status.HTTP_200_OK)
 
 # User details view    
 class UserDetailsView(APIView):
@@ -127,24 +144,6 @@ class UserDetailsView(APIView):
             employees = User.objects.all()
             serializer = UserSerializer(employees, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
-# Session view
-class SessionView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    @staticmethod
-    def get(request, format=None):
-        return JsonResponse({'isAuthenticated': True})
-
-
-class WhoAmIView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    @staticmethod
-    def get(request, format=None):
-        return JsonResponse({'username': request.user.username})
     
 # Testing view
 def hello_chris(request):

@@ -43,7 +43,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
     <>
     <ThemeProvider
         attribute="class"
-        defaultTheme="light"
+        defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
     >
