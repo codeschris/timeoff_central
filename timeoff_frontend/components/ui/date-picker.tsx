@@ -39,7 +39,7 @@ export function DatePickerWithRange({
 
     return (
         <div className={cn("grid gap-2", className)}>
-            <p className="text-sm text-muted-foreground text-black">You can request leave days 5 days after the current day (today)</p>
+            <p className="text-sm text-muted-foreground text-black">You can request leave days from 5 days after the current day of request</p>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
