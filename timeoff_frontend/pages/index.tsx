@@ -5,13 +5,14 @@ import { returnEmployees } from "./utils/api";
 export default function Home() {
   const [totalEmployees, setTotalEmployees] = useState(0);
 
-useEffect(() => {
-  async function fetchTotalEmployees() {
-    const response = await returnEmployees();
-    setTotalEmployees(response.length);
-  }
-  fetchTotalEmployees();
-}, []);
+  useEffect(() => {
+    async function fetchTotalEmployees() {
+      const response = await returnEmployees();
+      setTotalEmployees(response.length);
+    }
+    fetchTotalEmployees();
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <div className="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-3">
@@ -28,9 +29,17 @@ useEffect(() => {
           <span className="self-end text-lg md:text-3xl font-bold">100</span>
         </div>
       </div>
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
-        <h2 className="text-lg font-bold mb-4">Employees List</h2>
-        <EmployeesListTable />
+      <div className="grid auto-rows-min gap-4 grid-cols-1 md:grid-cols-2">
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
+          <h2 className="text-lg font-bold mb-4">Employees List</h2>
+          <EmployeesListTable />
+        </div>
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
+          <h2 className="text-lg font-bold mb-4">Recent Activity</h2>
+          <div>
+            <p>Nothing to show at the moment!</p>
+          </div>
+        </div>
       </div>
     </div>
   );

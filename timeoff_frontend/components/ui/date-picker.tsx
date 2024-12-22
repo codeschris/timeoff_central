@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { format, isBefore, startOfToday, addDays, isWithinInterval } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 
@@ -31,8 +31,15 @@ export function DatePickerWithRange({
         }
     }
 
+    const disabledDays = (day: Date) => {
+        const today = startOfToday()
+        const fiveDaysAfterToday = addDays(today, 5)
+        return isBefore(day, today) || isWithinInterval(day, { start: today, end: fiveDaysAfterToday })
+    }
+
     return (
         <div className={cn("grid gap-2", className)}>
+            <p className="text-sm text-muted-foreground text-black">You can request leave days 5 days after the current day (today)</p>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
@@ -66,6 +73,7 @@ export function DatePickerWithRange({
                         selected={date}
                         onSelect={setDate}
                         numberOfMonths={2}
+                        disabled={disabledDays}
                     />
                 </PopoverContent>
             </Popover>
