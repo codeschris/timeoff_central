@@ -39,3 +39,9 @@ export const loginUser = async (email: string, password: string) => {
   cookies.set('token', token, { path: '/' });
   return response.data;
 };
+
+// Search User
+export const searchUser = async (query: string) => {
+  const response = await API.get(`/search-user/`, { params: { q: query } });
+  return response.data;
+};

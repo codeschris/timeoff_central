@@ -1,26 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { searchUser, returnEmployees } from '../utils/api';
 
-const employeesData = [
-    { id: 1, name: 'John Doe' },
-    { id: 2, name: 'Jane Smith' },
-    { id: 3, name: 'Alice Johnson' },
-];
+interface Employee {
+    employee_id: number;
+    name: string;
+}
 
 export default function SearchEmployees() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredEmployees, setFilteredEmployees] = useState(employeesData);
+    const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+    const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
 
     useEffect(() => {
-        const results = employeesData.filter(employee =>
-            employee.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredEmployees(results);
-    }, [searchTerm]);
+        const fetchAllEmployees = async () => {
+            const employees = await returnEmployees();
+            setAllEmployees(employees);
+        };
+
+        fetchAllEmployees();
+    }, []);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            if (searchTerm) {
+                const results = await searchUser(searchTerm);
+                setFilteredEmployees(results);
+            } else {
+                setFilteredEmployees(allEmployees);
+            }
+        };
+
+        fetchEmployees();
+    }, [searchTerm, allEmployees]);
 
     return (
-        <div className='text-center w-3/4 mx-auto'>
+        <div className='w-3/4 mx-auto'>
             <h1 className='text-left font-extrabold text-lg my-4'>Search Employees</h1>
             <Input
                 type="text"
@@ -33,14 +49,16 @@ export default function SearchEmployees() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Name</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {filteredEmployees.map(employee => (
-                        <TableRow key={employee.id}>
-                            <TableCell>{employee.id}</TableCell>
+                        <TableRow 
+                            key={employee.employee_id} 
+                            onClick={() => window.location.href = `/employee/${employee.employee_id}`}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <TableCell>{employee.name}</TableCell>
                         </TableRow>
                     ))}
