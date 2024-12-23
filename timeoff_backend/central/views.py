@@ -1,8 +1,6 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, logout
 from django.http import JsonResponse, HttpResponse
-from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.http import require_POST
 import json
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +9,7 @@ from .models import LeaveDays, User
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from datetime import datetime
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
 
 """
@@ -42,13 +40,18 @@ class RegisterView(APIView):
     
 # Login view
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            login(request, user)
-            return Response({'message': 'Login successful!'}, status=status.HTTP_200_OK)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     
 # Logout view
