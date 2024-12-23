@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 """
 Views
@@ -110,6 +111,22 @@ class LeaveApprovalView(APIView):
         leave_request.save()
 
         return Response({'detail': 'Leave request approved successfully.'}, status=status.HTTP_200_OK)
+    
+# Search User view
+class SearchUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        if query:
+            users = User.objects.filter(
+                Q(name__icontains=query) |
+                Q(email__icontains=query) |
+                Q(employee_id__icontains=query)
+            )
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'error': 'No query parameter provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 # User details view    
 class UserDetailsView(APIView):

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LoginView, TakeLeaveView, hello_chris, UserDetailsView, LogoutView
+from .views import RegisterView, LoginView, TakeLeaveView, hello_chris, UserDetailsView, LogoutView, SearchUserView
 
 urlpatterns = [
     # Authentication endpoints
@@ -11,6 +11,7 @@ urlpatterns = [
     path('take-leave/', TakeLeaveView.as_view(), name='take_leave'),
     path('employees/', UserDetailsView.as_view(), name='list_employees'),
     path('employee/<str:employee_id>/', UserDetailsView.as_view(), name='user_details'),
+    path('search-user/', SearchUserView.as_view(), name='search_user'),
 
     # Testing
     path('hello_chris/', hello_chris, name='hello_chris'),
