@@ -1,31 +1,25 @@
-import React, { useContext, useEffect } from "react";
-import { AuthContext } from "../AuthContext";
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import Cookies from 'universal-cookie';
 
-const withAuth = (WrappedComponent: React.ComponentType) => {
-    const WithAuthComponent: React.FC = (props) => {
-        const { isAuthenticated, whoami } = useContext(AuthContext);
-        const router = useRouter();
+const withAuth = (WrappedComponent: React.FC) => {
+  const AuthComponent: React.FC = (props) => {
+    const router = useRouter();
+    const cookies = new Cookies();
+    const token = cookies.get('token');
 
-        useEffect(() => {
-            const checkAuth = async () => {
-                await whoami();
-                if (!isAuthenticated) {
-                    router.push("/auth/login");
-                }
-            };
+    useEffect(() => {
+      if (!token) {
+        router.push('/auth/login');
+      }
+    }, [token, router]);
 
-            checkAuth();
-        }, [isAuthenticated, whoami, router]);
+    if (!token) return null;
+    return <WrappedComponent {...props} />;
+  };
 
-        if (!isAuthenticated) {
-            return null; // or a loading spinner
-        }
-
-        return <WrappedComponent {...props} />;
-    };
-
-    return WithAuthComponent;
+  AuthComponent.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+  return AuthComponent;
 };
 
 export default withAuth;

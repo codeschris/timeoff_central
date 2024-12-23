@@ -3,7 +3,15 @@ import Cookies from 'universal-cookie';
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
-  withCredentials: true,
+});
+
+// Add token to headers for authenticated requests
+API.interceptors.request.use((config) => {
+  const token = cookies.get('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 const cookies = new Cookies();
@@ -34,10 +42,28 @@ export const takeLeave = async (employee_id: string, start_date: string, end_dat
 
 // Login user
 export const loginUser = async (email: string, password: string) => {
-  const response = await API.post('/login/', { email, password });
-  const { token } = response.data;
-  cookies.set('token', token, { path: '/' });
+  const response = await API.post('/token/', { email, password });
+  const { access, refresh } = response.data;
+
+  // Store tokens in cookies
+  cookies.set('token', access, { path: '/' });
+  cookies.set('refresh', refresh, { path: '/' });
+
   return response.data;
+};
+
+// Refresh token
+export const refreshToken = async () => {
+  const refresh = cookies.get('refresh');
+  if (!refresh) throw new Error('No refresh token found');
+
+  const response = await API.post('/token/refresh/', { refresh });
+  const { access } = response.data;
+
+  // Update access token
+  cookies.set('token', access, { path: '/' });
+
+  return access;
 };
 
 // Search User

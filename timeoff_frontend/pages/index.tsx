@@ -1,8 +1,9 @@
 import EmployeesListTable from "@/components/employees-table";
 import { useEffect, useState } from "react";
 import { returnEmployees } from "./utils/api";
+import withAuth from "@/components/context/HOC/withAuth";
 
-export default function Home() {
+const Home = () =>  {
   const [totalEmployees, setTotalEmployees] = useState(0);
 
   useEffect(() => {
@@ -44,3 +45,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default withAuth(Home);
