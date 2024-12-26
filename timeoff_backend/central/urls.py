@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, LoginView, TakeLeaveView, hello_chris, UserDetailsView, LogoutView, SearchUserView
+from .views import RegisterView, LoginView, TakeLeaveView, hello_chris, UserDetailsView, LogoutView, SearchUserView, UserProfileView
 
 urlpatterns = [
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('user-profile/', UserProfileView.as_view(), name='user-profile'),
 
     # Endpoints for user and leave management
     path('take-leave/', TakeLeaveView.as_view(), name='take_leave'),

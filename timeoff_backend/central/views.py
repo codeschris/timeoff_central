@@ -1,7 +1,13 @@
 from django.contrib.auth import authenticate, logout
 from django.http import JsonResponse, HttpResponse
 from django.views import View
-import json
+
+# Handling CSRF tokens
+# from django.views.decorators.csrf import csrf_exempt
+# from django.utils.decorators import method_decorator
+# ------------------------------
+
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer, TakeLeaveSerializer
@@ -48,14 +54,31 @@ class LoginView(APIView):
         user = authenticate(request, email=email, password=password)
         if user is not None:
             refresh = RefreshToken.for_user(user)
+            user_data = {
+                'name': user.name,
+                'email': user.email,
+            }
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'user': user_data,
             }, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     
+# User profile view
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_data = {
+            "name": user.name,
+            "email": user.email,
+        }
+        return Response(user_data, status=status.HTTP_200_OK)
+
 # Logout view
-class LogoutView(View):
+class LogoutView(APIView):
     def post(self, request):
         if not request.user.is_authenticated:
             return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
