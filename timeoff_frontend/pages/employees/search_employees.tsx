@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { searchUser, returnEmployees } from '../utils/api';
+import { searchUser, returnEmployees } from '../api/utils/endpoints';
 
 interface Employee {
     employee_id: number;

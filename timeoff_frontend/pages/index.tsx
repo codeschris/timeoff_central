@@ -1,6 +1,6 @@
 import EmployeesListTable from "@/components/employees-table";
 import { useEffect, useState } from "react";
-import { returnEmployees } from "./utils/api";
+import { returnEmployees } from "./api/utils/endpoints";
 import withAuth from "@/components/context/HOC/withAuth";
 
 const Home = () =>  {

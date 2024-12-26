@@ -17,13 +17,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
 const data = {
-  user: {
-    name: "Mumbo Mercy",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "SolFruit",
@@ -57,6 +51,10 @@ const data = {
           title: "Search Employee",
           url: "/employees/search_employees",
         },
+        {
+          title: "Print approved leaves",
+          url: "/print-approved-leaves",
+        }
       ],
     },
     {
@@ -72,16 +70,16 @@ const data = {
           title: "Reset password",
           url: "/auth/reset-password",
         },
-        {
-          title: "Print approved leaves",
-          url: "/print-approved-leaves",
-        }
       ],
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  
+  // Specify user constant to deal with nulltype issue and the need for dummy data when actual data is being used
+  const [user] = React.useState<{ name: string; email: string; avatar: string } | undefined>(undefined);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -91,7 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} /> {/* `user` is being called from NavUserProps (components/nav-user.tsx) */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

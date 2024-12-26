@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { returnEmployees } from '@/pages/utils/api';
+import { returnEmployees } from '@/pages/api/utils/endpoints';
 import {
     Table,
     TableBody,

@@ -13,7 +13,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { takeLeave } from "@/pages/utils/api"
+import { takeLeave } from "@/pages/api/utils/endpoints"
 
 export function DatePickerWithRange({
     className,

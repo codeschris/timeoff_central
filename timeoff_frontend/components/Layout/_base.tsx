@@ -32,12 +32,14 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
   return isLoginPage ? (
     <ThemeProvider
       attribute="class"
-      defaultTheme="light"
+      defaultTheme="dark"
       enableSystem
       disableTransitionOnChange
     >
       <MetaTags/>
-      <main>{children}</main>
+      <main>
+        {children}
+      </main>
     </ThemeProvider>
   ) : (
     <>
@@ -70,7 +72,9 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
             </Breadcrumb>
           </div>
         </header>
-        <main>{children}</main>
+        <main>
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
     </ThemeProvider>

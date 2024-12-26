@@ -43,13 +43,32 @@ export const takeLeave = async (employee_id: string, start_date: string, end_dat
 // Login user
 export const loginUser = async (email: string, password: string) => {
   const response = await API.post('/token/', { email, password });
-  const { access, refresh } = response.data;
+  const { access, refresh, user } = response.data;
 
   // Store tokens in cookies
   cookies.set('token', access, { path: '/' });
   cookies.set('refresh', refresh, { path: '/' });
 
+  return { access, refresh, user };
+};
+
+// Fetch user profile
+export const fetchUserProfile = async () => {
+  const token = cookies.get('token');
+  const response = await API.get('/user-profile/', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
+};
+
+// Logout user
+export const logoutUser = async () => {
+  await API.post('/logout/', {}, { withCredentials: true });
+  cookies.remove('token', { path: '/' });
+  cookies.remove('refresh', { path: '/' });
+  window.location.href = '/auth/login'; // Redirect user to login page once logged out
 };
 
 // Refresh token
