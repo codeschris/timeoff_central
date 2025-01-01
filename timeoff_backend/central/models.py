@@ -62,9 +62,17 @@ class User(AbstractUser):
         return self.leavedays.days_taken if hasattr(self, 'leavedays') else 0
 
 class LeaveDays(models.Model):
+    PURPOSE_CHOICES = (
+        ('Annual', 'Annual'),
+        ('Maternity/Paternity', 'Maternity/Paternity'),
+        ('Others', 'Others'),
+        ('Sick', 'Sick'),
+    )
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     total_days = models.IntegerField(default=21)
     days_taken = models.IntegerField(default=0)
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES, default='Annual')
     
     def __str__(self):
         return f"{self.user.name} - {self.total_days} days"

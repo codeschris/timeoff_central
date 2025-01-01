@@ -92,6 +92,7 @@ class TakeLeaveView(APIView):
 
     def post(self, request):
         employee_id = request.data.get('employee_id')
+        purpose = request.data.get('purpose', 'Annual')
         if not employee_id:
             return Response({'detail': 'Employee ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,11 +112,17 @@ class TakeLeaveView(APIView):
             specific_dates.sort()
             num_days = (specific_dates[-1] - specific_dates[0]).days + 1 if specific_dates else 0
             
+            # Update the days taken and purpose
+            leave_days.days_taken += num_days
+            leave_days.purpose = purpose
+            leave_days.save()
+            
             return Response({
                 "message": "Leave recorded successfully!",
                 "remaining_days": leave_days.remaining_days,
                 "specific_days": specific_days,
-                "num_days": num_days
+                "num_days": num_days,
+                "purpose": leave_days.purpose
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

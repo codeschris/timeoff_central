@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TakeLeaveSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
+    purpose = serializers.ChoiceField(choices=LeaveDays.PURPOSE_CHOICES)
 
     def validate(self, data):
         user = self.context['request'].user
@@ -45,5 +46,6 @@ class TakeLeaveSerializer(serializers.Serializer):
         leave_days = LeaveDays.objects.get(user=user)
         total_requested_days = (self.validated_data['end_date'] - self.validated_data['start_date']).days + 1
         leave_days.days_taken += total_requested_days
+        leave_days.purpose = self.validated_data['purpose']
         leave_days.save()
         return leave_days
