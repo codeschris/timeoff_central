@@ -52,6 +52,10 @@ To get started with the project, follow these steps:
         python manage.py runserver
         ```
 
+## AOB
+
+Refer to this document for planning: [Google Docs](https://docs.google.com/document/d/1IdRMct8JTBJ_G5fjLcmhuOESu_wuQnAx/edit)
+
 ## Contributing
 
 We welcome contributions to improve Timeoff Central. Please fork the repository and submit pull requests.
