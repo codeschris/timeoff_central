@@ -60,12 +60,12 @@ export function LoginForm() {
               Login
             </Button>
           </div>
-          <div className="mt-4 text-center text-sm">
+          {/*<div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <a href="/auth/register_account" className="underline underline-offset-4">
                 Register
               </a>
-          </div>
+          </div>*/}
         </form>
       </CardContent>
     </Card>

@@ -15,11 +15,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/router";
 import { registerUser } from "@/pages/api/utils/endpoints";
 
 export function RegisterForm() {
-    const router = useRouter();
     interface FormData {
         name: string;
         email: string;

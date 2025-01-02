@@ -36,8 +36,13 @@ export const returnEmployee = async (employee_id: string) => {
 };
 
 // Take leave: Test after implementing authentication
-export const takeLeave = async (employee_id: string, start_date: string, end_date: string) => {
-  const response = await API.post('/take-leave/', { employee_id, start_date, end_date });
+export const takeLeave = async (employee_id: string, specific_days: string[], purpose: string = 'Annual') => {
+  const response = await API.post('/take-leave/', { employee_id, specific_days, purpose });
+  return response.data;
+};
+
+export const approveLeave = async (leave_id: string) => {
+  const response = await API.post(`/approve-leave/${leave_id}/`);
   return response.data;
 };
 
@@ -64,11 +69,6 @@ export const registerUser = async (data: RegisterUserData) => {
   }
 };
 
-// Fetch user by ID
-export const fetchUserById = async (userId: string) => {
-  const response = await API.get(`/user/${userId}/`);
-  return response.data;
-};
 // Login user
 export const loginUser = async (email: string, password: string) => {
   const response = await API.post('/token/', { email, password });
@@ -97,7 +97,7 @@ export const logoutUser = async () => {
   await API.post('/logout/', {}, { withCredentials: true });
   cookies.remove('token', { path: '/' });
   cookies.remove('refresh', { path: '/' });
-  window.location.href = '/auth/login'; // Redirect user to login page once logged out
+  window.location.href = '/auth/login';
 };
 
 // Refresh token
