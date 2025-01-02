@@ -58,7 +58,6 @@ export function RegisterForm() {
 
         try {
             await registerUser(formData);
-            router.push("/auth/login")
             alert("User registered successfully!");
         } catch (error) {
             console.error("Registration failed:", error);

@@ -45,7 +45,7 @@ export default function EmployeesListTable() {
                 {employees.map((employee) => (
                     <TableRow key={employee.employee_id}>
                         <TableCell>
-                            <Link href={`/employee/${employee.employee_id}`}>
+                            <Link href={`/dashboard/employee/${employee.employee_id}`}>
                                 {employee.name}
                             </Link>
                         </TableCell>

@@ -17,7 +17,7 @@ export function LoginForm() {
     try {
       await loginUser(email, password);
       setError(null);
-      router.push("/");
+      router.push("/dashboard");
     } catch {
       setError("Invalid email or password");
     }

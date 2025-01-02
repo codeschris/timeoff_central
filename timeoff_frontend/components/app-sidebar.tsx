@@ -34,7 +34,7 @@ const data = {
       items: [
         {
           title: "Home",
-          url: "/",
+          url: "/dashboard",
         },
       ],
     },
@@ -45,15 +45,19 @@ const data = {
       items: [
         {
           title: "List All",
-          url: "/employees/all",
+          url: "/dashboard/employees",
         },
         {
           title: "Search Employee",
-          url: "/employees/search_employees",
+          url: "/dashboard/employees/search_employees",
         },
         {
           title: "Print approved leaves",
-          url: "/print-approved-leaves",
+          url: "/dashboard/print-approved-leaves",
+        },
+        {
+          title: "Register new employee",
+          url: "/auth/register-employee",
         }
       ],
     },
