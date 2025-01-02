@@ -37,6 +37,8 @@ validates the request, and updates the user's leave days accordingly.
 
 # Register view
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():

@@ -15,6 +15,7 @@ the role field is used to assign specific roles to management users.
 
 # User models
 class User(AbstractUser):
+    username = None
     USER_TYPE_CHOICES = (
         ('Employee', 'Employee'),
         ('Management', 'Management'),
