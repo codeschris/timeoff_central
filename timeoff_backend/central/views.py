@@ -59,6 +59,8 @@ class LoginView(APIView):
             user_data = {
                 'name': user.name,
                 'email': user.email,
+                'user_type': user.user_type,
+                'employee_id': user.employee_id,
             }
             return Response({
                 'refresh': str(refresh),
