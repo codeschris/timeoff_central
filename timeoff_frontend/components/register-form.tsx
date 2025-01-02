@@ -1,29 +1,32 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/router";
+import { registerUser } from "@/pages/api/utils/endpoints";
 
 export function RegisterForm() {
+    const router = useRouter();
     interface FormData {
-        name: string
-        email: string
-        employee_id: string
-        password: string
-        user_type: string
-        role: string
+        name: string;
+        email: string;
+        employee_id: string;
+        password: string;
+        user_type: string;
+        role: string;
     }
 
     const [formData, setFormData] = useState<FormData>({
@@ -33,32 +36,40 @@ export function RegisterForm() {
         password: "",
         user_type: "",
         role: "",
-    })
+    });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value } = e.target
+        const { id, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [id]: value,
-        }))
-    }
+        }));
+    };
 
     const handleDropdownChange = (field: keyof FormData, value: string) => {
         setFormData((prev) => ({
             ...prev,
             [field]: value,
-        }))
-    }
+        }));
+    };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        console.log("Submitting user data:", formData)
-    }
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        try {
+            await registerUser(formData);
+            router.push("/auth/login")
+            alert("User registered successfully!");
+        } catch (error) {
+            console.error("Registration failed:", error);
+            alert("Registration failed. Please try again.");
+        }
+    };
 
     const userTypeOptions = [
         { value: "Employee", label: "Employee" },
         { value: "Management", label: "Management" },
-    ]
+    ];
 
     const roleOptions = [
         { value: "HR", label: "Human Resource Manager" },
@@ -76,7 +87,7 @@ export function RegisterForm() {
         { value: "Security Guard", label: "Security Guard" },
         { value: "Managing Director", label: "Managing Director" },
         { value: "Director", label: "Director" },
-    ]
+    ];
 
     return (
         <Card className="mx-auto max-w-sm">
@@ -178,5 +189,5 @@ export function RegisterForm() {
                 </form>
             </CardContent>
         </Card>
-    )
+    );
 }

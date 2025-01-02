@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
@@ -40,6 +41,34 @@ export const takeLeave = async (employee_id: string, start_date: string, end_dat
   return response.data;
 };
 
+// Register user
+interface RegisterUserData {
+  name: string;
+  email: string;
+  employee_id: string;
+  password: string;
+  user_type: string;
+  role: string;
+}
+
+export const registerUser = async (data: RegisterUserData) => {
+  try {
+      const response = await API.post('/register/', data);
+      return response.data;
+  } catch (error: any) {
+      if (error.response) {
+          throw new Error(error.response.data.message || "Registration failed.");
+      } else {
+          throw new Error("An error occurred. Please try again.");
+      }
+  }
+};
+
+// Fetch user by ID
+export const fetchUserById = async (userId: string) => {
+  const response = await API.get(`/user/${userId}/`);
+  return response.data;
+};
 // Login user
 export const loginUser = async (email: string, password: string) => {
   const response = await API.post('/token/', { email, password });
