@@ -36,15 +36,7 @@ export const returnEmployee = async (employee_id: string) => {
 };
 
 // Take leave: Test after implementing authentication
-export const takeLeave = async (employee_id: string, specific_days: string[], purpose: string = 'Annual') => {
-  const response = await API.post('/take-leave/', { employee_id, specific_days, purpose });
-  return response.data;
-};
 
-export const approveLeave = async (leave_id: string) => {
-  const response = await API.post(`/approve-leave/${leave_id}/`);
-  return response.data;
-};
 
 // Register user
 interface RegisterUserData {
@@ -80,6 +72,9 @@ export const loginUser = async (email: string, password: string) => {
 
   return { access, refresh, user };
 };
+
+// Handle Login sessions
+
 
 // Fetch user profile
 export const fetchUserProfile = async () => {
