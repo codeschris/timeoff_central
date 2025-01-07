@@ -80,6 +80,7 @@ class UserProfileView(APIView):
         user_data = {
             "name": user.name,
             "email": user.email,
+            'user_type': user.user_type,
         }
         return Response(user_data, status=status.HTTP_200_OK)
 
