@@ -45,7 +45,7 @@ class RegisterView(APIView):
             return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# Login view
+# Login view (fetches user_type effecttively)
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -59,7 +59,7 @@ class LoginView(APIView):
                 'name': user.name,
                 'email': user.email,
                 'user_type': user.user_type,
-                'employee_id': user.employee_id,
+                'role': user.role if user.user_type == 'Management' else None,
             }
             return Response({
                 'refresh': str(refresh),
