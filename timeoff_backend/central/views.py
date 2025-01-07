@@ -11,11 +11,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer
-from .models import User
+from .models import User, LeaveDays
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
+from datetime import datetime
+from rest_framework.views import APIView
+from dateutil.parser import parse as parse_date
 
 """
 Views
@@ -90,6 +93,52 @@ class LogoutView(APIView):
         return JsonResponse({'detail': 'Successfully logged out.'})
 
 # Take leave view
+class LeaveRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        start_date_str = request.data.get('start_date')
+        end_date_str = request.data.get('end_date')
+        purpose = request.data.get('purpose', 'Annual')
+
+        if not start_date_str or not end_date_str:
+            return Response({'error': 'Start date and end date are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            start_date = parse_date(start_date_str).date()
+            end_date = parse_date(end_date_str).date()
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use dd/mm/yyyy.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if start_date > end_date:
+            return Response({'error': 'End date must be after start date.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        days_requested = (end_date - start_date).days + 1
+
+        # Fetch or create LeaveDays for the user
+        leave_days, _ = LeaveDays.objects.get_or_create(user=user)
+
+        # Check if the user has enough remaining days
+        if leave_days.remaining_days < days_requested:
+            return Response({
+                'error': 'Insufficient leave days.',
+                'remaining_days': leave_days.remaining_days
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the LeaveDays record
+        leave_days.days_taken += days_requested
+        leave_days.save()
+
+        return Response({
+            'message': 'Leave request successful.',
+            'days_requested': days_requested,
+            'remaining_days': leave_days.remaining_days,
+            'purpose': purpose,
+            'start_date': start_date.strftime('%d/%m/%Y'),
+            'end_date': end_date.strftime('%d/%m/%Y')
+        }, status=status.HTTP_200_OK)
 
 # Search User view
 class SearchUserView(APIView):
