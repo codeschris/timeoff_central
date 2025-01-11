@@ -16,7 +16,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
-from datetime import datetime
+# from datetime import datetime
 from rest_framework.views import APIView
 from dateutil.parser import parse as parse_date
 
@@ -48,7 +48,7 @@ class RegisterView(APIView):
             return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# Login view (fetches user_type effecttively)
+# Login view
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -62,7 +62,8 @@ class LoginView(APIView):
                 'name': user.name,
                 'email': user.email,
                 'user_type': user.user_type,
-                'role': user.role if user.user_type == 'Management' else None,
+                'employee_id': user.employee_id,
+                'role': user.role if user.user_type == 'Management' else None,  # Remove this line if not needed
             }
             return Response({
                 'refresh': str(refresh),
@@ -71,7 +72,7 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     
-# User profile view
+# User profile view (Life-save on auth (logging-in))
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -80,7 +81,8 @@ class UserProfileView(APIView):
         user_data = {
             "name": user.name,
             "email": user.email,
-            'user_type': user.user_type,
+            "user_type": user.user_type,
+            "employee_id": user.employee_id,
         }
         return Response(user_data, status=status.HTTP_200_OK)
 
@@ -158,7 +160,7 @@ class SearchUserView(APIView):
         return Response({'error': 'No query parameter provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 # User details view    
-class UserDetailsView(APIView):
+class ListEmployees(APIView):
     permission_classes = [AllowAny]  # Switch to IsAuthenticated if needed
 
     def get(self, request, employee_id=None):

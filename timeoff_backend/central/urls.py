@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, LoginView, LeaveRequestView, hello_chris, UserDetailsView, LogoutView, SearchUserView, UserProfileView
+from .views import RegisterView, LoginView, LeaveRequestView, hello_chris, ListEmployees, LogoutView, SearchUserView, UserProfileView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -21,14 +21,14 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('user-profile/', UserProfileView.as_view(), name='user-profile'),
+    path('user-profile/', UserProfileView.as_view(), name='user-profile'), # The real life-saver of the authentication using 'user_type'
 
     # Requesting leave days
     path('leave/request/', LeaveRequestView.as_view(), name='leave-request'),
 
     # Endpoints for user and leave management
-    path('employees/', UserDetailsView.as_view(), name='list_employees'),
-    path('employee/<str:employee_id>/', UserDetailsView.as_view(), name='user_details'),
+    path('employees/', ListEmployees.as_view(), name='list_employees'),
+    path('employee/<str:employee_id>/', ListEmployees.as_view(), name='user_details'),
     path('search-user/', SearchUserView.as_view(), name='search_user'),
 
     # Testing

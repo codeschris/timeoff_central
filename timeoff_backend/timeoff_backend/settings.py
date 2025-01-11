@@ -110,7 +110,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Timeoff API',
-    'DESCRIPTION': 'API documentation',
+    'DESCRIPTION': 'This is the official documentation for the API endpoints used in the Timeoff system',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
