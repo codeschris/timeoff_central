@@ -36,7 +36,22 @@ export const returnEmployee = async (employee_id: string) => {
 };
 
 // Take leave: Test after implementing authentication
+export const takeLeave = async (start_date: string, end_date: string, purpose: string = "Annual") => {
+  const token = cookies.get("token"); // Ensure token is stored and retrieved correctly
+  if (!token) throw new Error("User not authenticated");
 
+  const response = await API.post(
+    "/leave-request/",
+    { start_date, end_date, purpose },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
 
 // Register user
 interface RegisterUserData {

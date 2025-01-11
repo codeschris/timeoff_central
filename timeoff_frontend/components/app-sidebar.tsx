@@ -101,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUser({
           name: profile.name,
           email: profile.email,
-          avatar: profile.avatar || `https://ui-avatars.com/api/?name=${profile.name}&background=random`, // Replace with actual avatar logic if available
+          avatar: profile.avatar || `https://ui-avatars.com/api/?name=${profile.name}&background=random`,
         })
 
         // Update navItems based on user_type
@@ -120,13 +120,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [router])
 
   if (!user) {
-    return <div>Loading...</div> // Loading state while user profile is being fetched
+    return <div>Loading...</div>
   }
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={[{ name: "SolFruit", logo: GalleryVerticalEnd, plan: "Timeoff Central (Enterprise)" }]} />
+        <TeamSwitcher teams={[{ name: "SolFruit", logo: GalleryVerticalEnd, plan: "Timeoff (Enterprise)" }]} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />

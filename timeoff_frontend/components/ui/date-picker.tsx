@@ -1,45 +1,52 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format, isBefore, startOfToday, addDays, isWithinInterval } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import * as React from "react";
+import { format, isBefore, startOfToday, addDays, isWithinInterval } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { takeLeave } from "@/pages/api/utils/endpoints"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { takeLeave } from "@/pages/api/utils/endpoints";
 
-export function DatePickerWithRange({
-    className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-    const [date, setDate] = React.useState<DateRange | undefined>(undefined)
+export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
+    const [date, setDate] = React.useState<DateRange | undefined>(undefined);
 
     const handleTakeLeave = async () => {
         if (date?.from && date?.to) {
             try {
-                const response = await takeLeave("user-id", format(date.from, "yyyy-MM-dd"), format(date.to, "yyyy-MM-dd"))
-                console.log("Leave taken successfully:", response)
-            } catch (error) {
-                console.error("Error taking leave:", error)
+                const response = await takeLeave(
+                    format(date.from, "yyyy-MM-dd"),
+                    format(date.to, "yyyy-MM-dd"),
+                    "Annual"
+                );
+                alert(
+                    `Leave request successful! 
+                    Days Requested: ${response.days_requested}
+                    Remaining Days: ${response.remaining_days}
+                    Start Date: ${response.start_date}
+                    End Date: ${response.end_date}`
+                );
+            } catch (error: any) {
+                console.error("Error taking leave:", error);
+                alert(error?.response?.data?.error || "Failed to request leave.");
             }
         }
-    }
+    };
 
     const disabledDays = (day: Date) => {
-        const today = startOfToday()
-        const fiveDaysAfterToday = addDays(today, 5)
-        return isBefore(day, today) || isWithinInterval(day, { start: today, end: fiveDaysAfterToday })
-    }
+        const today = startOfToday();
+        const fiveDaysAfterToday = addDays(today, 5);
+        return isBefore(day, today) || isWithinInterval(day, { start: today, end: fiveDaysAfterToday });
+    };
 
     return (
         <div className={cn("grid gap-2", className)}>
-            <p className="text-sm text-muted-foreground">You can request leave days from 5 days after the current day of request</p>
+            <p className="text-sm text-muted-foreground">
+                You can request leave days from 5 days after the current day of request
+            </p>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
@@ -54,8 +61,7 @@ export function DatePickerWithRange({
                         {date?.from ? (
                             date.to ? (
                                 <>
-                                    {format(date.from, "LLL dd, y")} -{" "}
-                                    {format(date.to, "LLL dd, y")}
+                                    {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
                                 </>
                             ) : (
                                 format(date.from, "LLL dd, y")
@@ -81,5 +87,5 @@ export function DatePickerWithRange({
                 Take Leave
             </Button>
         </div>
-    )
+    );
 }
