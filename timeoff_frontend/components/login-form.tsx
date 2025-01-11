@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser } from "@/pages/api/utils/endpoints";
+import { loginUser, fetchUserProfile } from "@/pages/api/utils/endpoints";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,21 @@ export function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
+      // Login the user and store the tokens
       await loginUser(email, password);
-      setError(null);
-      router.push("/dashboard");
-    } catch {
+
+      // Fetch the user's profile to validate user_type
+      const userProfile = await fetchUserProfile();
+
+      // Redirect based on user_type
+      if (userProfile.user_type === "Employee") {
+        router.push(`/employee/${userProfile.employee_id}`);
+      } else if (userProfile.user_type === "Management") {
+        router.push("/dashboard");
+      }
+    } catch (err) {
       setError("Invalid email or password");
     }
   };
@@ -60,12 +70,6 @@ export function LoginForm() {
               Login
             </Button>
           </div>
-          {/*<div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="/auth/register_account" className="underline underline-offset-4">
-                Register
-              </a>
-          </div>*/}
         </form>
       </CardContent>
     </Card>

@@ -16,6 +16,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { registerUser } from "@/pages/api/utils/endpoints";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export function RegisterForm() {
     interface FormData {
@@ -142,7 +143,18 @@ export function RegisterForm() {
                     </div>
                     <div className="grid gap-2">
                         <Label>Employee/Part of Management</Label>
-                        <DropdownMenu>
+                            <RadioGroup
+                                value={formData.user_type}
+                                onValueChange={(value) => handleDropdownChange("user_type", value)}
+                            >
+                                {userTypeOptions.map((option) => (
+                                    <div key={option.value} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={option.value} id={option.value} />
+                                        <Label htmlFor={option.value}>{option.label}</Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        {/*<DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="w-full">
                                     {formData.user_type || "Select User Type"}
@@ -158,25 +170,31 @@ export function RegisterForm() {
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu>*/}
                     </div>
                     <div className="grid gap-2">
                         <Label>Role</Label>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="w-full">
-                                    {formData.role || "Select Role"}
+                                    Select Role
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                {roleOptions.map((option) => (
-                                    <DropdownMenuItem
-                                        key={option.value}
-                                        onClick={() => handleDropdownChange("role", option.value)}
-                                    >
-                                        {option.label}
-                                    </DropdownMenuItem>
-                                ))}
+                                {roleOptions
+                                    .filter((option) =>
+                                        formData.user_type === "Management"
+                                            ? ["HR", "General Manager", "Assistant Quality Assurance Manager", "Procurement Manager", "Quality and Compliance Manager", "Production Manager", "Managing Director", "Director"].includes(option.value)
+                                            : !["HR", "General Manager", "Assistant Quality Assurance Manager", "Procurement Manager", "Quality and Compliance Manager", "Production Manager", "Managing Director", "Director"].includes(option.value)
+                                    )
+                                    .map((option) => (
+                                        <DropdownMenuItem
+                                            key={option.value}
+                                            onClick={() => handleDropdownChange("role", option.value)}
+                                        >
+                                            {option.label}
+                                        </DropdownMenuItem>
+                                    ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

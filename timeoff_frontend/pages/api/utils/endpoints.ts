@@ -36,13 +36,20 @@ export const returnEmployee = async (employee_id: string) => {
 };
 
 // Take leave: Test after implementing authentication
-export const takeLeave = async (employee_id: string, specific_days: string[], purpose: string = 'Annual') => {
-  const response = await API.post('/take-leave/', { employee_id, specific_days, purpose });
-  return response.data;
-};
+export const takeLeave = async (start_date: string, end_date: string, purpose: string = "Annual") => {
+  const token = cookies.get("token"); // Ensure token is stored and retrieved correctly
+  if (!token) throw new Error("User not authenticated");
 
-export const approveLeave = async (leave_id: string) => {
-  const response = await API.post(`/approve-leave/${leave_id}/`);
+  const response = await API.post(
+    "/leave/request/",
+    { start_date, end_date, purpose },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
   return response.data;
 };
 
@@ -80,6 +87,9 @@ export const loginUser = async (email: string, password: string) => {
 
   return { access, refresh, user };
 };
+
+// Handle Login sessions
+
 
 // Fetch user profile
 export const fetchUserProfile = async () => {

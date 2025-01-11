@@ -10,13 +10,15 @@ from django.views import View
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserSerializer, TakeLeaveSerializer
-from .models import LeaveDays, User
+from .serializers import UserSerializer
+from .models import User, LeaveDays
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from datetime import datetime
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
+# from datetime import datetime
+from rest_framework.views import APIView
+from dateutil.parser import parse as parse_date
 
 """
 Views
@@ -61,6 +63,7 @@ class LoginView(APIView):
                 'email': user.email,
                 'user_type': user.user_type,
                 'employee_id': user.employee_id,
+                'role': user.role if user.user_type == 'Management' else None,  # Remove this line if not needed
             }
             return Response({
                 'refresh': str(refresh),
@@ -69,7 +72,7 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
     
-# User profile view
+# User profile view (Life-save on auth (logging-in))
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -78,6 +81,8 @@ class UserProfileView(APIView):
         user_data = {
             "name": user.name,
             "email": user.email,
+            "user_type": user.user_type,
+            "employee_id": user.employee_id,
         }
         return Response(user_data, status=status.HTTP_200_OK)
 
@@ -90,65 +95,54 @@ class LogoutView(APIView):
         logout(request)
         return JsonResponse({'detail': 'Successfully logged out.'})
 
-# Take leave view    
-class TakeLeaveView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        employee_id = request.data.get('employee_id')
-        purpose = request.data.get('purpose', 'Annual')
-        if not employee_id:
-            return Response({'detail': 'Employee ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = User.objects.get(employee_id=employee_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = TakeLeaveSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            leave_days = serializer.save(user=user)
-            specific_days = request.data.get('specific_days', [])
-            
-            # Calculate the number of days between the specific dates
-            date_format = "%Y/%m/%d"
-            specific_dates = [datetime.strptime(date, date_format) for date in specific_days]
-            specific_dates.sort()
-            num_days = (specific_dates[-1] - specific_dates[0]).days + 1 if specific_dates else 0
-            
-            # Update the days taken and purpose
-            leave_days.days_taken += num_days
-            leave_days.purpose = purpose
-            leave_days.save()
-            
-            return Response({
-                "message": "Leave recorded successfully!",
-                "remaining_days": leave_days.remaining_days,
-                "specific_days": specific_days,
-                "num_days": num_days,
-                "purpose": leave_days.purpose
-            }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-# Leave approval view
-class LeaveApprovalView(APIView):
+# Take leave view
+class LeaveRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, leave_id):
-        if not request.user.is_management:
-            return Response({'detail': 'You do not have permission to approve leaves.'}, status=status.HTTP_403_FORBIDDEN)
+    def post(self, request):
+        user = request.user
+
+        start_date_str = request.data.get('start_date')
+        end_date_str = request.data.get('end_date')
+        purpose = request.data.get('purpose', 'Annual')
+
+        if not start_date_str or not end_date_str:
+            return Response({'error': 'Start date and end date are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            leave_request = LeaveDays.objects.get(id=leave_id)
-        except LeaveDays.DoesNotExist:
-            return Response({'detail': 'Leave request not found.'}, status=status.HTTP_404_NOT_FOUND)
+            start_date = parse_date(start_date_str).date()
+            end_date = parse_date(end_date_str).date()
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use dd/mm/yyyy.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        leave_request.status = 'Approved'
-        leave_request.approved_by = request.user
-        leave_request.save()
+        if start_date > end_date:
+            return Response({'error': 'End date must be after start date.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'detail': 'Leave request approved successfully.'}, status=status.HTTP_200_OK)
-    
+        days_requested = (end_date - start_date).days + 1
+
+        # Fetch or create LeaveDays for the user
+        leave_days, _ = LeaveDays.objects.get_or_create(user=user)
+
+        # Check if the user has enough remaining days
+        if leave_days.remaining_days < days_requested:
+            return Response({
+                'error': 'Insufficient leave days.',
+                'remaining_days': leave_days.remaining_days
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the LeaveDays record
+        leave_days.days_taken += days_requested
+        leave_days.save()
+
+        return Response({
+            'message': 'Leave request successful.',
+            'days_requested': days_requested,
+            'remaining_days': leave_days.remaining_days,
+            'purpose': purpose,
+            'start_date': start_date.strftime('%d/%m/%Y'),
+            'end_date': end_date.strftime('%d/%m/%Y')
+        }, status=status.HTTP_200_OK)
+
 # Search User view
 class SearchUserView(APIView):
     permission_classes = [AllowAny]
@@ -166,7 +160,7 @@ class SearchUserView(APIView):
         return Response({'error': 'No query parameter provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 # User details view    
-class UserDetailsView(APIView):
+class ListEmployees(APIView):
     permission_classes = [AllowAny]  # Switch to IsAuthenticated if needed
 
     def get(self, request, employee_id=None):

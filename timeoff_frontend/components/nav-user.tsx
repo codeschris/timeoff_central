@@ -27,7 +27,7 @@ export function NavUser({ user }: NavUserProps) {
     avatar: "",
   })
 
-  // If no user is passed as a prop, fetch user details
+  // If no user is passed as a prop, fetch user details (Not in use but ignore for the moment)
   useEffect(() => {
     const getUserDetails = async () => {
       if (!user) {
