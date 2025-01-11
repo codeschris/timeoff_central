@@ -41,7 +41,7 @@ export const takeLeave = async (start_date: string, end_date: string, purpose: s
   if (!token) throw new Error("User not authenticated");
 
   const response = await API.post(
-    "/leave-request/",
+    "/leave/request/",
     { start_date, end_date, purpose },
     {
       headers: {
