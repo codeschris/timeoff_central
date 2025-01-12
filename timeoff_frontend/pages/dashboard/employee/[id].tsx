@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { returnEmployee } from '@/pages/api/utils/endpoints';
+import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
+import { returnEmployee, getLeaveHistory } from '@/pages/api/utils/endpoints';
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -14,10 +15,20 @@ interface Employee {
     total_days: number;
 }
 
+interface LeaveHistory {
+    id: string;
+    start_date: string;
+    end_date: string;
+    purpose: string;
+    days_requested: number;
+    created_at: string;
+}
+
 const EmployeePage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [employee, setEmployee] = useState<Employee | null>(null);
+    const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
 
     useEffect(() => {
         if (id) {
@@ -29,7 +40,18 @@ const EmployeePage = () => {
                     console.error('Error fetching employee:', error);
                 }
             };
+
+            const fetchLeaveHistory = async () => {
+                try {
+                    const history = await getLeaveHistory(id as string);
+                    setLeaveHistory(history);
+                } catch (error) {
+                    console.error('Error fetching leave history:', error);
+                }
+            };
+
             fetchEmployee();
+            fetchLeaveHistory();
         }
     }, [id]);
 
@@ -50,11 +72,48 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                <div className='w-full md:w-1/2 p-4'>
+                {/*<div className='w-full md:w-1/2 p-4'>
                     <Calendar />
-                </div>
+                </div>*/}
             </div>
-            <div className='mt-6'>
+
+            {/* Leave History Section */}
+            <div className='w-full mt-6'>
+                <Card>
+                    <CardContent>
+                        <h2 className='text-xl font-bold my-4'>Leave History</h2>
+                        {leaveHistory.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Start Date</TableHead>
+                                        <TableHead>End Date</TableHead>
+                                        <TableHead>Purpose</TableHead>
+                                        <TableHead>Days Requested</TableHead>
+                                        <TableHead>Request Date</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {leaveHistory.map((leave) => (
+                                        <TableRow key={leave.id}>
+                                            <TableCell>{leave.start_date}</TableCell>
+                                            <TableCell>{leave.end_date}</TableCell>
+                                            <TableCell>{leave.purpose}</TableCell>
+                                            <TableCell>{leave.days_requested}</TableCell>
+                                            <TableCell>{leave.created_at}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p className="text-muted-foreground">No leave history available.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Leave Request Section */}
+            {/*<div className='mt-6'>
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button>Request Leave</Button>
@@ -63,7 +122,7 @@ const EmployeePage = () => {
                         <DatePickerWithRange />
                     </PopoverContent>
                 </Popover>
-            </div>
+            </div>*/}
         </div>
     );
 };

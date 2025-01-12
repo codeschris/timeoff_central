@@ -1,4 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+/** API is using Django v5
+ * 
+ * Endpoints:
+ * 1. Fetch greeting
+ * 2. Fetch employees
+ * 3. Fetch single employee
+ * 4. Take leave
+ * 5. Register user
+ * 6. Login user
+ * 7. Fetch user profile
+ * 8. Logout user
+ * 9. Refresh token
+ * 10. Search user 
+ */
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
@@ -37,7 +52,7 @@ export const returnEmployee = async (employee_id: string) => {
 
 // Take leave: Test after implementing authentication
 export const takeLeave = async (start_date: string, end_date: string, purpose: string = "Annual") => {
-  const token = cookies.get("token"); // Ensure token is stored and retrieved correctly
+  const token = cookies.get("token");
   if (!token) throw new Error("User not authenticated");
 
   const response = await API.post(
@@ -49,6 +64,19 @@ export const takeLeave = async (start_date: string, end_date: string, purpose: s
       },
     }
   );
+
+  return response.data;
+};
+
+export const getLeaveHistory = async (employee_id: string) => {
+  const token = cookies.get("token");
+  if (!token) throw new Error("User not authenticated");
+
+  const response = await API.get(`/leave/request/${employee_id}/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data;
 };
@@ -89,7 +117,7 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 // Handle Login sessions
-
+/** null at the moment */
 
 // Fetch user profile
 export const fetchUserProfile = async () => {
