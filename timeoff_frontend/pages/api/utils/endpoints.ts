@@ -157,3 +157,12 @@ export const searchUser = async (query: string) => {
   const response = await API.get(`/search-user/`, { params: { q: query } });
   return response.data;
 };
+
+// Recent Activities
+export async function getRecentActivities() {
+  const response = await API.get("/recent-activities/");
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch recent activities.");
+  }
+  return response.data;
+}

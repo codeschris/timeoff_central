@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Calendar } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
 import { returnEmployee, getLeaveHistory } from '@/pages/api/utils/endpoints';
-import { DatePickerWithRange } from '@/components/ui/date-picker';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Employee {
     id: string;
     employee_id: string;
     name: string;
     total_days: number;
+    days_taken: number;
 }
 
 interface LeaveHistory {
@@ -68,7 +65,7 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
-                            <p className='mb-2'><strong>Leave Days Remaining:</strong> {employee.total_days}</p>
+                            <p className='mb-2'><strong>Leave Days Taken:</strong> {employee.days_taken}</p>
                         </CardContent>
                     </Card>
                 </div>

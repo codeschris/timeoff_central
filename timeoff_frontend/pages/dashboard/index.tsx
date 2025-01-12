@@ -1,17 +1,28 @@
+/**
+ * Handle types appropriately
+ */
+
 import EmployeesListTable from "@/components/employees-table";
 import { useEffect, useState } from "react";
-import { returnEmployees } from "@/pages/api/utils/endpoints";
+import { returnEmployees, getRecentActivities } from "@/pages/api/utils/endpoints";
 import withAuth from "@/components/context/HOC/withAuth";
 
 const Dashboard = () =>  {
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [recentActivities, setRecentActivities] = useState([]);
 
   useEffect(() => {
-    async function fetchTotalEmployees() {
-      const response = await returnEmployees();
-      setTotalEmployees(response.length);
+    async function fetchData() {
+      // Fetch total employees
+      const employees = await returnEmployees();
+      setTotalEmployees(employees.length);
+
+      // Fetch recent activities
+      const activities = await getRecentActivities();
+      setRecentActivities(activities);
     }
-    fetchTotalEmployees();
+
+    fetchData();
   }, []);
 
   return (
@@ -38,7 +49,20 @@ const Dashboard = () =>  {
         <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
           <h2 className="text-lg font-bold mb-4">Recent Activity</h2>
           <div>
-            <p>Nothing to show at the moment!</p>
+            {recentActivities.length > 0 ? (
+              <ul className="list-disc list-inside">
+                {recentActivities.map((activity, index) => (
+                  <li key={index} className="mb-2">
+                    <strong>{activity.user}</strong> requested leave for{" "}
+                    <strong>{activity.days_requested} days</strong> (
+                    {activity.purpose}) on{" "}
+                    {new Date(activity.created_at).toLocaleDateString()}.
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">No recent activity to show.</p>
+            )}
           </div>
         </div>
       </div>
