@@ -25,6 +25,7 @@ urlpatterns = [
 
     # Requesting leave days
     path('leave/request/', LeaveRequestView.as_view(), name='leave-request'),
+    path('leave/request/<str:employee_id>/', LeaveRequestView.as_view(), name='leave-history'),
 
     # Endpoints for user and leave management
     path('employees/', ListEmployees.as_view(), name='list_employees'),

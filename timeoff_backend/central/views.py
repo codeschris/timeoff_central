@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer
-from .models import User, LeaveDays
+from .models import User, LeaveDays, LeaveRequest
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -102,21 +102,21 @@ class LeaveRequestView(APIView):
     def post(self, request):
         user = request.user
 
-        start_date_str = request.data.get('start_date')
-        end_date_str = request.data.get('end_date')
-        purpose = request.data.get('purpose', 'Annual')
+        start_date_str = request.data.get("start_date")
+        end_date_str = request.data.get("end_date")
+        purpose = request.data.get("purpose", "Annual")
 
         if not start_date_str or not end_date_str:
-            return Response({'error': 'Start date and end date are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Start date and end date are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             start_date = parse_date(start_date_str).date()
             end_date = parse_date(end_date_str).date()
         except ValueError:
-            return Response({'error': 'Invalid date format. Use dd/mm/yyyy.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid date format. Use yyyy-mm-dd."}, status=status.HTTP_400_BAD_REQUEST)
 
         if start_date > end_date:
-            return Response({'error': 'End date must be after start date.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "End date must be after start date."}, status=status.HTTP_400_BAD_REQUEST)
 
         days_requested = (end_date - start_date).days + 1
 
@@ -125,23 +125,65 @@ class LeaveRequestView(APIView):
 
         # Check if the user has enough remaining days
         if leave_days.remaining_days < days_requested:
-            return Response({
-                'error': 'Insufficient leave days.',
-                'remaining_days': leave_days.remaining_days
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": "Insufficient leave days.",
+                    "remaining_days": leave_days.remaining_days,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # Update the LeaveDays record
+        # Log the leave request
+        LeaveRequest.objects.create(
+            user=user,
+            start_date=start_date,
+            end_date=end_date,
+            purpose=purpose,
+            days_requested=days_requested,
+        )
+
+        # Update LeaveDays
         leave_days.days_taken += days_requested
         leave_days.save()
 
-        return Response({
-            'message': 'Leave request successful.',
-            'days_requested': days_requested,
-            'remaining_days': leave_days.remaining_days,
-            'purpose': purpose,
-            'start_date': start_date.strftime('%d/%m/%Y'),
-            'end_date': end_date.strftime('%d/%m/%Y')
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": "Leave request successful.",
+                "days_requested": days_requested,
+                "remaining_days": leave_days.remaining_days,
+                "purpose": purpose,
+                "start_date": start_date.strftime("%d/%m/%Y"),
+                "end_date": end_date.strftime("%d/%m/%Y"),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def get(self, request, employee_id=None):
+        user = request.user
+
+        if user.user_type == "Management":
+            # Management users can view leave history for a specific employee or all employees
+            if employee_id:
+                leave_requests = LeaveRequest.objects.filter(user__employee_id=employee_id)
+            else:
+                leave_requests = LeaveRequest.objects.all()
+        else:
+            # Employees can only view their own leave requests
+            leave_requests = LeaveRequest.objects.filter(user=user)
+
+        data = [
+            {
+                "user": leave_request.user.name,
+                "start_date": leave_request.start_date.strftime("%d/%m/%Y"),
+                "end_date": leave_request.end_date.strftime("%d/%m/%Y"),
+                "purpose": leave_request.purpose,
+                "days_requested": leave_request.days_requested,
+                "created_at": leave_request.created_at.strftime("%d/%m/%Y %H:%M"),
+            }
+            for leave_request in leave_requests
+        ]
+
+        return Response(data, status=status.HTTP_200_OK)
 
 # Search User view
 class SearchUserView(APIView):
