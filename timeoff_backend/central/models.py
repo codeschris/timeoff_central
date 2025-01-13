@@ -81,3 +81,14 @@ class LeaveDays(models.Model):
     @property
     def remaining_days(self):
         return self.total_days - self.days_taken
+
+class LeaveRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leave_requests")
+    start_date = models.DateField()
+    end_date = models.DateField()
+    purpose = models.CharField(max_length=20, choices=LeaveDays.PURPOSE_CHOICES, default="Annual")
+    days_requested = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.name} | {self.start_date} to {self.end_date} | {self.purpose}"

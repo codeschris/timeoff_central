@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -9,10 +10,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { takeLeave } from "@/pages/api/utils/endpoints";
 
 export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivElement>) {
     const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+    const [purpose, setPurpose] = React.useState<string>("Annual");
 
     const handleTakeLeave = async () => {
         if (date?.from && date?.to) {
@@ -20,10 +23,11 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
                 const response = await takeLeave(
                     format(date.from, "yyyy-MM-dd"),
                     format(date.to, "yyyy-MM-dd"),
-                    "Annual"
+                    purpose
                 );
                 alert(
                     `Leave request successful! 
+                    Purpose: ${purpose}
                     Days Requested: ${response.days_requested}
                     Remaining Days: ${response.remaining_days}
                     Start Date: ${response.start_date}
@@ -43,9 +47,9 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
     };
 
     return (
-        <div className={cn("grid gap-2", className)}>
+        <div className={cn("grid gap-4", className)}>
             <p className="text-sm text-muted-foreground">
-                You can request leave days from 5 days after the current day of request
+                You can request leave days starting from 5 days after the current day of request.
             </p>
             <Popover>
                 <PopoverTrigger asChild>
@@ -83,6 +87,17 @@ export function DatePickerWithRange({ className }: React.HTMLAttributes<HTMLDivE
                     />
                 </PopoverContent>
             </Popover>
+            <Select onValueChange={setPurpose} defaultValue={purpose}>
+                <SelectTrigger className="w-[255px]">
+                    <SelectValue placeholder="Select Leave Purpose" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Annual">Annual</SelectItem>
+                    <SelectItem value="Maternity/Paternity">Maternity/Paternity</SelectItem>
+                    <SelectItem value="Sick">Sick</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                </SelectContent>
+            </Select>
             <Button onClick={handleTakeLeave} disabled={!date?.from || !date?.to}>
                 Take Leave
             </Button>
