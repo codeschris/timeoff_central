@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
-import { returnEmployee, getLeaveHistory } from '@/pages/api/utils/endpoints';
+import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs } from '@/pages/api/utils/endpoints';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 interface Employee {
     id: string;
@@ -26,6 +28,52 @@ const EmployeePage = () => {
     const { id } = router.query;
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const handleGeneratePDF = async (employee_id: string, name: string) => {
+        setLoading(true);
+      
+        try {
+          const logs = await fetchEmployeeLeaveLogs(employee_id);
+      
+          if (logs.length === 0) {
+            alert("No leave logs available for this employee.");
+            setLoading(false);
+            return;
+          }
+      
+          const doc = new jsPDF();
+
+          doc.setFontSize(18);
+          doc.text(`Leave Logs for ${name}`, 14, 20);
+      
+          // Prepare table data
+          const tableData = logs.map(
+            (log: { start_date: string; end_date: string; days_requested: string; purpose: string }, index: number) => [
+              index + 1,
+              log.start_date,
+              log.end_date,
+              log.days_requested,
+              log.purpose,
+            ]
+          );
+          const tableHeaders = ["#", "Start Date", "End Date", "Days Requested", "Purpose"];
+      
+          // Add the table to the PDF
+          doc.autoTable({
+            head: [tableHeaders],
+            body: tableData,
+            startY: 30,
+          });
+      
+          doc.save(`leave-logs-${name}.pdf`);
+        } catch (error) {
+          console.error("Error generating PDF:", error);
+          alert("Failed to generate PDF. Please try again.");
+        } finally {
+          setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (id) {
@@ -69,9 +117,15 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                {/*<div className='w-full md:w-1/2 p-4'>
-                    <Calendar />
-                </div>*/}
+                <div className='w-full md:w-1/2 p-4'>
+                    <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    onClick={() => handleGeneratePDF(employee.employee_id, employee.name)}
+                    disabled={loading}
+                    >
+                        {loading ? "Generating..." : "Download Leave Logs"}
+                    </button>
+                </div>
             </div>
 
             {/* Leave History Section */}

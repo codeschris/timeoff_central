@@ -13,7 +13,8 @@
  * 8. Logout user
  * 9. Refresh token
  * 10. Search user 
- */
+*/
+
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
@@ -163,6 +164,15 @@ export async function getRecentActivities() {
   const response = await API.get("/recent-activities/");
   if (response.status !== 200) {
     throw new Error("Failed to fetch recent activities.");
+  }
+  return response.data;
+}
+
+// Retrieve Leave logs
+export async function fetchEmployeeLeaveLogs(employee_id: string) {
+  const response = await API.get(`/leaves/${employee_id}`);
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch leave logs.");
   }
   return response.data;
 }

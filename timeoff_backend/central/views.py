@@ -241,6 +241,36 @@ class ListEmployees(APIView):
             employees = User.objects.all()
             serializer = UserSerializer(employees, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class EmployeeLeaveLogsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, employee_id):
+        try:
+            # Filter LeaveRequest by user__employee_id
+            leave_requests = LeaveRequest.objects.filter(user__employee_id=employee_id)
+            if not leave_requests.exists():
+                return Response(
+                    {"error": "No leave logs found for this employee."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Serialize leave request data
+            data = [
+                {
+                    "start_date": leave.start_date.strftime("%Y-%m-%d"),
+                    "end_date": leave.end_date.strftime("%Y-%m-%d"),
+                    "days_requested": leave.days_requested,
+                    "purpose": leave.purpose,
+                }
+                for leave in leave_requests
+            ]
+            return Response(data, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND
+            )
     
 # Testing view
 def hello_chris(request):
