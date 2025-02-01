@@ -215,3 +215,13 @@ export const approveLeaveRequest = async (id: number, action: "approve" | "deny"
     throw new Error("Failed to process leave request.");
   }
 };
+
+// Clocking in/out
+export const clockInOut = async (employee_id: string) => {
+  try {
+    const response = await API.post(`/clock-in-out/${employee_id}/`);
+    return response.data;
+  } catch {
+    throw new Error("Failed to clock in/out.");
+  }
+};

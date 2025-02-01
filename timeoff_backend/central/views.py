@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, logout
 from django.http import JsonResponse, HttpResponse
 
+# ------------------------------
 # Handling CSRF tokens
 # from django.views.decorators.csrf import csrf_exempt
 # from django.utils.decorators import method_decorator
@@ -10,16 +11,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserSerializer
-from .models import User, LeaveDays, LeaveRequest
+from .models import User, LeaveDays, LeaveRequest, TimeLog
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
-# from datetime import datetime
-from django.utils.timezone import localtime
+from datetime import datetime
 from rest_framework.views import APIView
 from dateutil.parser import parse as parse_date
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import localtime
 
 """
 Views
@@ -32,6 +33,10 @@ Views
 - SearchUserView: This view is used to search for users by name, email, or employee ID.
 - ListEmployees: This view is used to list all employees or fetch details of a specific employee.
 - RecentActivitiesView: This view is used to fetch recent leave requests.
+- PendingLeaveRequestsView: This view is used to fetch pending leave requests for a specific employee.
+- ApproveOrDenyLeaveRequestView: This view is used to approve or deny a leave request.
+- EmployeeLeaveLogsView: This view is used to fetch the leave history of a specific employee.
+- ClockInOutView: This view is used to clock in or out an employee.
 
 ** Leave management **
 - LeaveRequestView: This view is used to request leave days. It accepts a POST request with the start date, end date, and purpose of the leave. It also provides a GET method to view leave history.
@@ -322,6 +327,30 @@ class ApproveOrDenyLeaveRequestView(APIView):
             leave_request.approved_by = user
             leave_request.save()
             return Response({'message': 'Leave request denied.'}, status=status.HTTP_200_OK)
+
+class ClockInOutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, employee_id):
+        # Get employee from employee_id
+        try:
+            user = User.objects.get(employee_id=employee_id)
+        except User.DoesNotExist:
+            return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get the last time log for the employee for today
+        today = datetime.now().date()
+        last_time_log = TimeLog.objects.filter(user=user, date=today).last()
+
+        if last_time_log and last_time_log.clock_in and not last_time_log.clock_out:
+            # Clock out if the employee is already clocked in
+            last_time_log.clock_out = datetime.now()
+            last_time_log.save()
+            return Response({"message": f"Clocked out at {last_time_log.clock_out}"}, status=status.HTTP_200_OK)
+        else:
+            # Clock in if the employee has not clocked in today
+            TimeLog.objects.create(user=user, clock_in=datetime.now(), date=today)
+            return Response({"message": "Clocked in successfully"}, status=status.HTTP_200_OK)
 
 # Testing view
 def hello_chris(request):

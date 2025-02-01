@@ -144,7 +144,7 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
-                            <p className='mb-2'><strong>Leave Days Taken:</strong> {employee.days_taken}</p>
+                            <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
                         </CardContent>
                     </Card>
                 </div>
@@ -220,7 +220,6 @@ const EmployeePage = () => {
                                         <TableHead>End Date</TableHead>
                                         <TableHead>Purpose</TableHead>
                                         <TableHead>Days Requested</TableHead>
-                                        <TableHead>Request Date</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -230,7 +229,6 @@ const EmployeePage = () => {
                                             <TableCell>{leave.end_date}</TableCell>
                                             <TableCell>{leave.purpose}</TableCell>
                                             <TableCell>{leave.days_requested}</TableCell>
-                                            <TableCell>{leave.created_at}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

@@ -70,7 +70,7 @@ class LeaveDays(models.Model):
         ('Sick', 'Sick'),
     )
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     total_days = models.IntegerField(default=21)
     days_taken = models.IntegerField(default=0)
     purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES, default='Annual')
@@ -100,3 +100,12 @@ class LeaveRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.name} | {self.start_date} to {self.end_date} | {self.purpose} | {self.approval_status}"
+
+class TimeLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    clock_in = models.DateTimeField(null=True, blank=True)
+    clock_out = models.DateTimeField(null=True, blank=True)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Time log for {self.employee.name} on {self.date}"
