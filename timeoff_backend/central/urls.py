@@ -1,6 +1,10 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, LoginView, LeaveRequestView, hello_chris, ListEmployees, LogoutView, SearchUserView, UserProfileView, RecentActivitiesView
+from .views import ( RegisterView, LoginView, LeaveRequestView, 
+                    hello_chris, ListEmployees, LogoutView, SearchUserView, 
+                    UserProfileView, RecentActivitiesView, EmployeeLeaveLogsView, 
+                    PendingLeaveRequestsView, ApproveOrDenyLeaveRequestView, ClockInOutView
+                    )
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -26,6 +30,9 @@ urlpatterns = [
     # Requesting leave days and Fetching Leave History
     path('leave/request/', LeaveRequestView.as_view(), name='leave-request'),
     path('leave/request/<str:employee_id>/', LeaveRequestView.as_view(), name='leave-history'),
+    path('leaves/<str:employee_id>/', EmployeeLeaveLogsView.as_view(), name='employee-leave-logs'),
+    path('leaves/pending/<str:employee_id>/', PendingLeaveRequestsView.as_view(), name='pending-requests'),
+    path('leaves/<int:id>/approve-deny/', ApproveOrDenyLeaveRequestView.as_view(), name='approve-deny-leave-request'),
 
     # Endpoints for user and leave management
     path('employees/', ListEmployees.as_view(), name='list_employees'),
@@ -34,6 +41,9 @@ urlpatterns = [
 
     # Recent Activity
     path('recent-activities/', RecentActivitiesView.as_view(), name='recent_activities'),
+
+    # Clocking in/out
+    path('clock-in-out/<str:employee_id>/', ClockInOutView.as_view(), name='clock-in-out'),
 
     # Testing
     path('hello_chris/', hello_chris, name='hello_chris'),

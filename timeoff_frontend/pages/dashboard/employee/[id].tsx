@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
-import { returnEmployee, getLeaveHistory } from '@/pages/api/utils/endpoints';
+import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs, fetchPendingLeaveRequests, approveLeaveRequest } from '@/pages/api/utils/endpoints';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 interface Employee {
     id: string;
@@ -21,11 +23,78 @@ interface LeaveHistory {
     created_at: string;
 }
 
+interface PendingLeaveRequest {
+    id: string;
+    start_date: string;
+    end_date: string;
+    purpose: string;
+    days_requested: number;
+    status: string;
+}
+
 const EmployeePage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<PendingLeaveRequest[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const handleGeneratePDF = async (employee_id: string, name: string) => {
+        setLoading(true);
+        try {
+            const logs = await fetchEmployeeLeaveLogs(employee_id);
+            if (logs.length === 0) {
+                alert("No leave logs available for this employee.");
+                setLoading(false);
+                return;
+            }
+            const doc = new jsPDF();
+            doc.setFontSize(18);
+            doc.text(`Leave Logs for ${name}`, 14, 20);
+            const tableData = logs.map((log: { start_date: string; end_date: string; days_requested: string; purpose: string }, index: number) => [
+                index + 1,
+                log.start_date,
+                log.end_date,
+                log.days_requested,
+                log.purpose,
+            ]);
+            const tableHeaders = ["#", "Start Date", "End Date", "Days Requested", "Purpose"];
+            doc.autoTable({
+                head: [tableHeaders],
+                body: tableData,
+                startY: 30,
+            });
+            doc.save(`leave-logs-${name}.pdf`);
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Failed to generate PDF. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleApprove = async (id: string) => {
+        try {
+            await approveLeaveRequest(id, "approve");
+            setPendingRequests(pendingRequests.filter(request => request.id !== id));
+            alert('Leave request approved.');
+        } catch (error) {
+            console.error('Error approving leave request:', error);
+            alert('Failed to approve leave request.');
+        }
+    };
+
+    const handleDeny = async (id: string) => {
+        try {
+            await approveLeaveRequest(id, "deny");
+            setPendingRequests(pendingRequests.filter(request => request.id !== id));
+            alert('Leave request denied.');
+        } catch (error) {
+            console.error('Error denying leave request:', error);
+            alert('Failed to deny leave request.');
+        }
+    };
 
     useEffect(() => {
         if (id) {
@@ -47,8 +116,18 @@ const EmployeePage = () => {
                 }
             };
 
+            const fetchPendingRequests = async () => {
+                try {
+                    const requests = await fetchPendingLeaveRequests(id as string);
+                    setPendingRequests(requests);
+                } catch (error) {
+                    console.error('Error fetching pending leave requests:', error);
+                }
+            };
+
             fetchEmployee();
             fetchLeaveHistory();
+            fetchPendingRequests();
         }
     }, [id]);
 
@@ -65,20 +144,74 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
-                            <p className='mb-2'><strong>Leave Days Taken:</strong> {employee.days_taken}</p>
+                            <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
                         </CardContent>
                     </Card>
                 </div>
-                {/*<div className='w-full md:w-1/2 p-4'>
-                    <Calendar />
-                </div>*/}
+                <div className='w-full md:w-1/2 p-4'>
+                    <button
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                        onClick={() => handleGeneratePDF(employee.employee_id, employee.name)}
+                        disabled={loading}
+                    >
+                        {loading ? "Generating..." : "Download Leave Logs"}
+                    </button>
+                </div>
+            </div>
+
+            {/* Pending Leave Requests Section */}
+            <div className='w-full mt-6'>
+                <Card>
+                    <CardContent>
+                        <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
+                        {pendingRequests.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Start Date</TableHead>
+                                        <TableHead>End Date</TableHead>
+                                        <TableHead>Purpose</TableHead>
+                                        <TableHead>Days Requested</TableHead>
+                                        <TableHead>Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {pendingRequests.map((leave) => (
+                                        <TableRow key={leave.id}>
+                                            <TableCell>{leave.start_date}</TableCell>
+                                            <TableCell>{leave.end_date}</TableCell>
+                                            <TableCell>{leave.purpose}</TableCell>
+                                            <TableCell>{leave.days_requested}</TableCell>
+                                            <TableCell>
+                                                <button
+                                                    className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                                                    onClick={() => handleApprove(leave.id)}
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    className="bg-red-500 text-white px-3 py-1 rounded"
+                                                    onClick={() => handleDeny(leave.id)}
+                                                >
+                                                    Deny
+                                                </button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p className="text-muted-foreground">No pending leave requests.</p>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Leave History Section */}
             <div className='w-full mt-6'>
                 <Card>
                     <CardContent>
-                        <h2 className='text-xl font-bold my-4'>Leave History</h2>
+                        <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
                         {leaveHistory.length > 0 ? (
                             <Table>
                                 <TableHeader>
@@ -87,7 +220,6 @@ const EmployeePage = () => {
                                         <TableHead>End Date</TableHead>
                                         <TableHead>Purpose</TableHead>
                                         <TableHead>Days Requested</TableHead>
-                                        <TableHead>Request Date</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -97,7 +229,6 @@ const EmployeePage = () => {
                                             <TableCell>{leave.end_date}</TableCell>
                                             <TableCell>{leave.purpose}</TableCell>
                                             <TableCell>{leave.days_requested}</TableCell>
-                                            <TableCell>{leave.created_at}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -108,18 +239,6 @@ const EmployeePage = () => {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Leave Request Section */}
-            {/*<div className='mt-6'>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button>Request Leave</Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                        <DatePickerWithRange />
-                    </PopoverContent>
-                </Popover>
-            </div>*/}
         </div>
     );
 };
