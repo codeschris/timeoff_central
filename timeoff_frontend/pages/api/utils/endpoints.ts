@@ -176,3 +176,42 @@ export async function fetchEmployeeLeaveLogs(employee_id: string) {
   }
   return response.data;
 }
+
+// Fetch pending leave requests
+export const fetchPendingLeaveRequests = async (employeeId: string) => {
+  try {
+    const response = await API.get(`/leaves/pending/${employeeId}/`);
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch pending leave requests.");
+    }
+    return response.data;
+  } catch {
+    throw new Error("Failed to fetch pending leave requests.");
+  }
+};
+
+
+// Approve or deny leave request
+export const approveLeaveRequest = async (id: number, action: "approve" | "deny") => {
+  try {
+    const response = await API.post(
+      `/leaves/${id}/approve-deny/`,
+      { action },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("Failed to process leave request.");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to process leave request.");
+  }
+};

@@ -28,7 +28,7 @@ export function LoginForm() {
       } else if (userProfile.user_type === "Management") {
         router.push("/dashboard");
       }
-    } catch (err) {
+    } catch {
       setError("Invalid email or password");
     }
   };

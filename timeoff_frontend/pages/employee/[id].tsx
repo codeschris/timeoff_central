@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
-import { returnEmployee, getLeaveHistory } from '@/pages/api/utils/endpoints';
+import { returnEmployee, getLeaveHistory, fetchPendingLeaveRequests } from '@/pages/api/utils/endpoints';
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -24,11 +24,21 @@ interface LeaveHistory {
     created_at: string;
 }
 
+interface PendingLeaveRequest {
+    id: string;
+    start_date: string;
+    end_date: string;
+    purpose: string;
+    days_requested: number;
+    status: string;
+}
+
 const EmployeePage = () => {
     const router = useRouter();
     const { id } = router.query;
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<PendingLeaveRequest[]>([]);
 
     useEffect(() => {
         if (id) {
@@ -50,8 +60,18 @@ const EmployeePage = () => {
                 }
             };
 
+            const fetchPendingRequests = async () => {
+                try {
+                    const requests = await fetchPendingLeaveRequests(id as string);
+                    setPendingRequests(requests);
+                } catch (error) {
+                    console.error('Error fetching pending leave requests:', error);
+                }
+            };
+
             fetchEmployee();
             fetchLeaveHistory();
+            fetchPendingRequests();
         }
     }, [id]);
 
@@ -72,16 +92,13 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                {/*<div className='w-full md:w-1/2 p-4'>
-                    <Calendar />
-                </div>*/}
             </div>
 
             {/* Leave History Section */}
             <div className='w-full mt-6'>
                 <Card>
                     <CardContent>
-                        <h2 className='text-xl font-bold my-4'>Leave History</h2>
+                        <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
                         {leaveHistory.length > 0 ? (
                             <Table>
                                 <TableHeader>
@@ -107,6 +124,41 @@ const EmployeePage = () => {
                             </Table>
                         ) : (
                             <p className="text-muted-foreground">No leave history available.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Pending Leave Requests Section */}
+            <div className='w-full mt-6'>
+                <Card>
+                    <CardContent>
+                        <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
+                        {pendingRequests.length > 0 ? (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Start Date</TableHead>
+                                        <TableHead>End Date</TableHead>
+                                        <TableHead>Purpose</TableHead>
+                                        <TableHead>Days Requested</TableHead>
+                                        <TableHead>Status</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {pendingRequests.map((request) => (
+                                        <TableRow key={request.id}>
+                                            <TableCell>{request.start_date}</TableCell>
+                                            <TableCell>{request.end_date}</TableCell>
+                                            <TableCell>{request.purpose}</TableCell>
+                                            <TableCell>{request.days_requested}</TableCell>
+                                            <TableCell>{request.status}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <p className="text-muted-foreground">No pending leave requests.</p>
                         )}
                     </CardContent>
                 </Card>

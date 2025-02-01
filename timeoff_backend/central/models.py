@@ -83,12 +83,20 @@ class LeaveDays(models.Model):
         return self.total_days - self.days_taken
 
 class LeaveRequest(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Denied', 'Denied'),
+    )
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leave_requests")
     start_date = models.DateField()
     end_date = models.DateField()
     purpose = models.CharField(max_length=20, choices=LeaveDays.PURPOSE_CHOICES, default="Annual")
     days_requested = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    approval_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    approved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="approved_leaves")
 
     def __str__(self):
-        return f"{self.user.name} | {self.start_date} to {self.end_date} | {self.purpose}"
+        return f"{self.user.name} | {self.start_date} to {self.end_date} | {self.purpose} | {self.approval_status}"

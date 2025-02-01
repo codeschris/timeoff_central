@@ -2,7 +2,9 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import ( RegisterView, LoginView, LeaveRequestView, 
                     hello_chris, ListEmployees, LogoutView, SearchUserView, 
-                    UserProfileView, RecentActivitiesView, EmployeeLeaveLogsView )
+                    UserProfileView, RecentActivitiesView, EmployeeLeaveLogsView, 
+                    PendingLeaveRequestsView, ApproveOrDenyLeaveRequestView
+                    )
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -29,6 +31,8 @@ urlpatterns = [
     path('leave/request/', LeaveRequestView.as_view(), name='leave-request'),
     path('leave/request/<str:employee_id>/', LeaveRequestView.as_view(), name='leave-history'),
     path('leaves/<str:employee_id>/', EmployeeLeaveLogsView.as_view(), name='employee-leave-logs'),
+    path('leaves/pending/<str:employee_id>/', PendingLeaveRequestsView.as_view(), name='pending-requests'),
+    path('leaves/<int:id>/approve-deny/', ApproveOrDenyLeaveRequestView.as_view(), name='approve-deny-leave-request'),
 
     # Endpoints for user and leave management
     path('employees/', ListEmployees.as_view(), name='list_employees'),

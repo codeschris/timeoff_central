@@ -60,7 +60,7 @@ export default function LayoutComponent({ children }: LayoutComponentProps) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/">
+                  <BreadcrumbLink href="#">
                     Timeoff Central
                   </BreadcrumbLink>
                 </BreadcrumbItem>
