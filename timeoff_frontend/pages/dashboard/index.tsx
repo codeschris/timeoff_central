@@ -7,9 +7,16 @@ import { useEffect, useState } from "react";
 import { returnEmployees, getRecentActivities } from "@/pages/api/utils/endpoints";
 import withAuth from "@/components/context/HOC/withAuth";
 
+interface Activity {
+  user: string;
+  days_requested: number;
+  purpose: string;
+  created_at: string;
+}
+
 const Dashboard = () =>  {
   const [totalEmployees, setTotalEmployees] = useState(0);
-  const [recentActivities, setRecentActivities] = useState([]);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
     async function fetchData() {
