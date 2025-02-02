@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
 import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs, fetchPendingLeaveRequests, approveLeaveRequest } from '@/pages/api/utils/endpoints';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import LeaveLogsPDF from '@/components/LeaveLogsPDF';
+import { Button } from '@/components/ui/button';
 
 interface Employee {
     id: string;
@@ -39,44 +41,28 @@ const EmployeePage = () => {
     const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
     const [pendingRequests, setPendingRequests] = useState<PendingLeaveRequest[]>([]);
     const [loading, setLoading] = useState(false);
+    const [logs, setLogs] = useState<any[]>([]);
 
-    const handleGeneratePDF = async (employee_id: string, name: string) => {
+    const handleFetchLogs = async (employee_id: string) => {
         setLoading(true);
         try {
-            const logs = await fetchEmployeeLeaveLogs(employee_id);
-            if (logs.length === 0) {
+            const data = await fetchEmployeeLeaveLogs(employee_id);
+            if (data.length === 0) {
                 alert("No leave logs available for this employee.");
                 setLoading(false);
                 return;
             }
-            const doc = new jsPDF();
-            doc.setFontSize(18);
-            doc.text(`Leave Logs for ${name}`, 14, 20);
-            const tableData = logs.map((log: { start_date: string; end_date: string; days_requested: string; purpose: string }, index: number) => [
-                index + 1,
-                log.start_date,
-                log.end_date,
-                log.days_requested,
-                log.purpose,
-            ]);
-            const tableHeaders = ["#", "Start Date", "End Date", "Days Requested", "Purpose"];
-            doc.autoTable({
-                head: [tableHeaders],
-                body: tableData,
-                startY: 30,
-            });
-            doc.save(`leave-logs-${name}.pdf`);
+            setLogs(data);
         } catch (error) {
-            console.error("Error generating PDF:", error);
-            alert("Failed to generate PDF. Please try again.");
-        } finally {
-            setLoading(false);
+            console.error("Error fetching logs:", error);
+            alert("Failed to fetch leave logs.");
         }
+        setLoading(false);
     };
 
     const handleApprove = async (id: string) => {
         try {
-            await approveLeaveRequest(id, "approve");
+            await approveLeaveRequest(Number(id), "approve"); // Convert id to number
             setPendingRequests(pendingRequests.filter(request => request.id !== id));
             alert('Leave request approved.');
         } catch (error) {
@@ -84,10 +70,10 @@ const EmployeePage = () => {
             alert('Failed to approve leave request.');
         }
     };
-
+    
     const handleDeny = async (id: string) => {
         try {
-            await approveLeaveRequest(id, "deny");
+            await approveLeaveRequest(Number(id), "deny"); // Convert id to number
             setPendingRequests(pendingRequests.filter(request => request.id !== id));
             alert('Leave request denied.');
         } catch (error) {
@@ -148,14 +134,26 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                <div className='w-full md:w-1/2 p-4'>
-                    <button
+                <div className='w-full md:w-1/2 p-5'>
+                    <h2 className='text-lg font-bold'>Leave Logs</h2>
+                    <p className='text-md text-muted-foreground mb-5'>Download the employee&apos;s approved leave logs using the button below</p>
+                    <Button
                         className="bg-blue-500 text-white px-4 py-2 rounded"
-                        onClick={() => handleGeneratePDF(employee.employee_id, employee.name)}
+                        onClick={() => handleFetchLogs(employee.employee_id)}
                         disabled={loading}
                     >
-                        {loading ? "Generating..." : "Download Leave Logs"}
-                    </button>
+                        {loading ? "Fetching..." : "Fetch Leave Logs"}
+                    </Button>
+
+                    {logs.length > 0 && (
+                        <PDFDownloadLink
+                            document={<LeaveLogsPDF logs={logs} employeeName={employee.name} />}
+                            fileName={`leave-logs-${employee.name}.pdf`}
+                            className="bg-green-500 text-white px-4 py-2 rounded ml-2"
+                        >
+                            Download Logs
+                        </PDFDownloadLink>
+                    )}
                 </div>
             </div>
 
