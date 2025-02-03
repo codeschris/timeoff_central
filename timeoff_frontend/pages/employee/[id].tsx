@@ -12,6 +12,7 @@ interface Employee {
     id: string;
     employee_id: string;
     name: string;
+    role: string;
     total_days: number;
     days_taken: number;
 }
@@ -81,99 +82,104 @@ const EmployeePage = () => {
     }
 
     return (
-        <div className='flex container mx-auto px-1 md:px-20 py-5 flex-col items-center'>
+        <div className='flex container mx-auto px-4 md:px-20 py-5 flex-col items-center'>
             <div className='flex w-full flex-col md:flex-row'>
-                <div className='w-full md:w-1/2 p-4'>
+                <div className='w-full md:w-1/2'>
                     <Card className='p-6 mb-6'>
                         <CardContent>
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
+                            <p className='mb-2'><strong>Role:</strong> {employee.role}</p>
                             <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
-                            <ClockInOutButton employee_id={employee.employee_id} />
+                            <p className='text-sm text-muted-foreground'>When clocking in, click the button. Do the same when clocking out</p>
+                            <div className='flex gap-3'>
+                                <ClockInOutButton employee_id={employee.employee_id} />
+                                {/* Leave Request Section */}
+                                <div className='mt-7'>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button>Request Leave</Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <DatePickerWithRange />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
             </div>
 
-            {/* Leave History Section */}
-            <div className='w-full mt-6'>
-                <Card>
-                    <CardContent>
-                        <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
-                        {leaveHistory.length > 0 ? (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Start Date</TableHead>
-                                        <TableHead>End Date</TableHead>
-                                        <TableHead>Purpose</TableHead>
-                                        <TableHead>Days Requested</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {leaveHistory.map((leave) => (
-                                        <TableRow key={leave.id}>
-                                            <TableCell>{leave.start_date}</TableCell>
-                                            <TableCell>{leave.end_date}</TableCell>
-                                            <TableCell>{leave.purpose}</TableCell>
-                                            <TableCell>{leave.days_requested}</TableCell>
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Leave History Section */}
+                <div className='w-full mt-6'>
+                    <Card>
+                        <CardContent>
+                            <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
+                            {leaveHistory.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Start Date</TableHead>
+                                            <TableHead>End Date</TableHead>
+                                            <TableHead>Purpose</TableHead>
+                                            <TableHead>Days Requested</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : (
-                            <p className="text-muted-foreground">No leave history available.</p>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {leaveHistory.map((leave) => (
+                                            <TableRow key={leave.id}>
+                                                <TableCell>{leave.start_date}</TableCell>
+                                                <TableCell>{leave.end_date}</TableCell>
+                                                <TableCell>{leave.purpose}</TableCell>
+                                                <TableCell>{leave.days_requested}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <p className="text-muted-foreground">No leave history available.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
 
-            {/* Pending Leave Requests Section */}
-            <div className='w-full mt-6'>
-                <Card>
-                    <CardContent>
-                        <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
-                        {pendingRequests.length > 0 ? (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Start Date</TableHead>
-                                        <TableHead>End Date</TableHead>
-                                        <TableHead>Purpose</TableHead>
-                                        <TableHead>Days Requested</TableHead>
-                                        <TableHead>Status</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {pendingRequests.map((request) => (
-                                        <TableRow key={request.id}>
-                                            <TableCell>{request.start_date}</TableCell>
-                                            <TableCell>{request.end_date}</TableCell>
-                                            <TableCell>{request.purpose}</TableCell>
-                                            <TableCell>{request.days_requested}</TableCell>
-                                            <TableCell>{request.status}</TableCell>
+                {/* Pending Leave Requests Section */}
+                <div className='w-full mt-6'>
+                    <Card>
+                        <CardContent>
+                            <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
+                            {pendingRequests.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Start Date</TableHead>
+                                            <TableHead>End Date</TableHead>
+                                            <TableHead>Purpose</TableHead>
+                                            <TableHead>Days Requested</TableHead>
+                                            <TableHead>Status</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        ) : (
-                            <p className="text-muted-foreground">No pending leave requests.</p>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Leave Request Section */}
-            <div className='mt-6'>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button>Request Leave</Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                        <DatePickerWithRange />
-                    </PopoverContent>
-                </Popover>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {pendingRequests.map((request) => (
+                                            <TableRow key={request.id}>
+                                                <TableCell>{request.start_date}</TableCell>
+                                                <TableCell>{request.end_date}</TableCell>
+                                                <TableCell>{request.purpose}</TableCell>
+                                                <TableCell>{request.days_requested}</TableCell>
+                                                <TableCell>{request.status}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <p className="text-muted-foreground">No pending leave requests.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );

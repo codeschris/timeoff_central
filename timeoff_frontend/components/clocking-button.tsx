@@ -21,7 +21,6 @@ const ClockInOutButton = ({ employee_id }: { employee_id: string }) => {
 
     return (
         <div className='mt-4'>
-            <p className='text-sm text-muted-foreground'>When clocking in, click the button. Do the same when clocking out</p>
             <Button className='mt-3' onClick={handleClockInOut} disabled={loading}>
                 {loading ? 'Processing...' : 'Clock In/Out'}
             </Button>

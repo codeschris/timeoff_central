@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import User, LeaveDays
+from .models import User, LeaveDays, TimeLog
 from django.contrib.auth.hashers import make_password
+from django.utils.timezone import localtime
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -11,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'name', 'email', 'employee_id', 'password', 'user_type', 'role', 'total_days', 'days_taken']
         extra_kwargs = {
-            'password': {'write_only': True}  # Ensure password is write-only
+            'password': {'write_only': True}  # password is write-only
         }
 
     def create(self, validated_data):
@@ -25,27 +26,3 @@ class UserSerializer(serializers.ModelSerializer):
         user.password = make_password(validated_data['password'])  # Hash the password
         user.save()
         return user
-
-class TakeLeaveSerializer(serializers.Serializer):
-    start_date = serializers.DateField()
-    end_date = serializers.DateField()
-    purpose = serializers.ChoiceField(choices=LeaveDays.PURPOSE_CHOICES)
-
-    def validate(self, data):
-        user = self.context['request'].user
-        leave_days = LeaveDays.objects.get(user=user)
-        total_requested_days = (data['end_date'] - data['start_date']).days + 1  # Include the start day
-        if total_requested_days <= 0:
-            raise serializers.ValidationError("End date must be after start date.")
-        if total_requested_days > leave_days.remaining_days:
-            raise serializers.ValidationError("You do not have enough leave days remaining.")
-        return data
-
-    def save(self, **kwargs):
-        user = self.context['request'].user
-        leave_days = LeaveDays.objects.get(user=user)
-        total_requested_days = (self.validated_data['end_date'] - self.validated_data['start_date']).days + 1
-        leave_days.days_taken += total_requested_days
-        leave_days.purpose = self.validated_data['purpose']
-        leave_days.save()
-        return leave_days

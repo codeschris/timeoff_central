@@ -351,6 +351,33 @@ class ClockInOutView(APIView):
             # Clock in if the employee has not clocked in today
             TimeLog.objects.create(user=user, clock_in=datetime.now(), date=today)
             return Response({"message": "Clocked in successfully"}, status=status.HTTP_200_OK)
+        
+# Clock in/out records view
+class ClockInOutRecordsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, employee_id):
+        # Try to get the user, return 404 if not found
+        user = get_object_or_404(User, employee_id=employee_id)
+        
+        # Fetch logs ordered by date
+        logs = TimeLog.objects.filter(user=user).order_by('-date')
+        
+        # If no logs exist, return an empty list instead of a 404
+        if not logs.exists():
+            return Response([], status=status.HTTP_200_OK)
+
+        # Format response
+        data = [
+            {
+                "date": log.date.strftime('%Y-%m-%d'),
+                "clock_in": localtime(log.clock_in).strftime('%H:%M:%S') if log.clock_in else None,
+                "clock_out": localtime(log.clock_out).strftime('%H:%M:%S') if log.clock_out else None,
+            }
+            for log in logs
+        ]
+
+        return Response(data, status=status.HTTP_200_OK)
 
 # Testing view
 def hello_chris(request):

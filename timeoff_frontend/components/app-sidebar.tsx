@@ -78,12 +78,8 @@ const employeeNav = [
     icon: Settings2,
     items: [
       {
-        title: "Profile",
-        url: "/employee/profile",
-      },
-      {
-        title: "Reset password",
-        url: "/auth/reset-password",
+        title: "Reset password (NaN)",
+        url: "#",
       },
     ],
   },

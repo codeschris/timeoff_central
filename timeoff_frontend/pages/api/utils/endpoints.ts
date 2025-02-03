@@ -19,7 +19,7 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 
 const API = axios.create({
-  baseURL: 'https://codeschris.pythonanywhere.com/api/',
+  baseURL: 'http://127.0.0.1:8000/api/',
 });
 
 // Add token to headers for authenticated requests
@@ -220,6 +220,15 @@ export const approveLeaveRequest = async (id: number, action: "approve" | "deny"
 export const clockInOut = async (employee_id: string) => {
   try {
     const response = await API.post(`/clock-in-out/${employee_id}/`);
+    return response.data;
+  } catch {
+    throw new Error("Failed to clock in/out.");
+  }
+};
+
+export const fetchAttendanceRecords = async (employee_id: string) => {
+  try {
+    const response = await API.get(`/clock-in-out-records/${employee_id}/`);
     return response.data;
   } catch {
     throw new Error("Failed to clock in/out.");
