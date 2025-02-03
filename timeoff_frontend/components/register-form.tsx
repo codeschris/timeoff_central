@@ -177,7 +177,7 @@ export function RegisterForm() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="w-full">
-                                    Select Role
+                                    {formData.role || "Select Role"}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
