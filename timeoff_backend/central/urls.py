@@ -3,7 +3,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import ( RegisterView, LoginView, LeaveRequestView, 
                     hello_chris, ListEmployees, LogoutView, SearchUserView, 
                     UserProfileView, RecentActivitiesView, EmployeeLeaveLogsView, 
-                    PendingLeaveRequestsView, ApproveOrDenyLeaveRequestView, ClockInOutView
+                    PendingLeaveRequestsView, ApproveOrDenyLeaveRequestView, ClockInOutView,
+                    ClockInOutRecordsView
                     )
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -44,6 +45,7 @@ urlpatterns = [
 
     # Clocking in/out
     path('clock-in-out/<str:employee_id>/', ClockInOutView.as_view(), name='clock-in-out'),
+    path('clock-in-out-records/<str:employee_id>/', ClockInOutRecordsView.as_view(), name='clock-in-out-records'),
 
     # Testing
     path('hello_chris/', hello_chris, name='hello_chris'),

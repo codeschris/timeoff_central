@@ -131,4 +131,4 @@ class TimeLog(models.Model):
     date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Time log for {self.employee.name} on {self.date}"
+        return f"Time log for {self.user.name} on {self.date}"

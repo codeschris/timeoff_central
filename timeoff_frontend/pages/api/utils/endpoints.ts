@@ -225,3 +225,12 @@ export const clockInOut = async (employee_id: string) => {
     throw new Error("Failed to clock in/out.");
   }
 };
+
+export const fetchAttendanceRecords = async (employee_id: string) => {
+  try {
+    const response = await API.get(`/clock-in-out-records/${employee_id}/`);
+    return response.data;
+  } catch {
+    throw new Error("Failed to clock in/out.");
+  }
+};
