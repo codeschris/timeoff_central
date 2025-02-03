@@ -19,7 +19,7 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: 'https://codeschris.pythonanywhere.com/api/',
 });
 
 // Add token to headers for authenticated requests
