@@ -1,49 +1,11 @@
-import EmployeesListTable from "@/components/employees-table";
-import { useEffect, useState } from "react";
-import { returnEmployees } from "./api/utils/endpoints";
-import withAuth from "@/components/context/HOC/withAuth";
+import Link from "next/link";
 
-const Home = () =>  {
-  const [totalEmployees, setTotalEmployees] = useState(0);
-
-  useEffect(() => {
-    async function fetchTotalEmployees() {
-      const response = await returnEmployees();
-      setTotalEmployees(response.length);
-    }
-    fetchTotalEmployees();
-  }, []);
-
+export default function Unauthorized() {
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">Total Employees</span>
-          <span className="self-end text-lg md:text-3xl font-bold">{totalEmployees}</span>
-        </div>
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">People on leave</span>
-          <span className="self-end text-lg md:text-3xl font-bold">5</span>
-        </div>
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">Total Leave Days Taken</span>
-          <span className="self-end text-lg md:text-3xl font-bold">100</span>
-        </div>
-      </div>
-      <div className="grid auto-rows-min gap-4 grid-cols-1 md:grid-cols-2">
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
-          <h2 className="text-lg font-bold mb-4">Employees List</h2>
-          <EmployeesListTable />
-        </div>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
-          <h2 className="text-lg font-bold mb-4">Recent Activity</h2>
-          <div>
-            <p>Nothing to show at the moment!</p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1 className="text-3xl font-bold text-red-600">Access Denied</h1>
+      <p className="text-lg mt-2">You do not have permission to view this page.</p>
+      <Link href="/auth/login" className="mt-4 text-blue-500 underline">Go to login</Link>
     </div>
   );
 }
-
-export default withAuth(Home);

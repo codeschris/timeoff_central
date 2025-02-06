@@ -31,6 +31,34 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Auto-refresh token when expired
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      try {
+        const refresh = cookies.get("refresh");
+        if (!refresh) throw new Error("Session expired");
+
+        const response = await API.post("/token/refresh/", { refresh });
+        cookies.set("token", response.data.access, { path: "/" });
+
+        // Retry failed request with new token
+        error.config.headers.Authorization = `Bearer ${response.data.access}`;
+        return API(error.config);
+      } catch {
+        cookies.remove("token", { path: "/" });
+        cookies.remove("refresh", { path: "/" });
+        cookies.remove("user_type", { path: "/" });
+
+        window.location.href = "/auth/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 const cookies = new Cookies();
 
 // Fetch greeting
