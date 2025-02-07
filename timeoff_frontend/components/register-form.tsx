@@ -184,8 +184,8 @@ export function RegisterForm() {
                                 {roleOptions
                                     .filter((option) =>
                                         formData.user_type === "Management"
-                                            ? ["HR", "General Manager", "Assistant Quality Assurance Manager", "Procurement Manager", "Quality and Compliance Manager", "Production Manager", "Managing Director", "Director"].includes(option.value)
-                                            : !["HR", "General Manager", "Assistant Quality Assurance Manager", "Procurement Manager", "Quality and Compliance Manager", "Production Manager", "Managing Director", "Director"].includes(option.value)
+                                            ? ["HR", "General Manager", "Managing Director", "Director"].includes(option.value)
+                                            : !["HR", "General Manager", "Managing Director", "Director"].includes(option.value)
                                     )
                                     .map((option) => (
                                         <DropdownMenuItem
