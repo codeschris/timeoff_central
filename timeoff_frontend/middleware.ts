@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 interface MiddlewareRequest {
     headers: Headers;
     ip?: string;
+    url: string;
 }
 
 {/** 
@@ -21,7 +22,7 @@ export function middleware(req: MiddlewareRequest): NextResponse {
     // console.log(`Request received from IP: ${realIp}`);
 
     if (!allowedIP.includes(realIp)) {
-        return new NextResponse(`Access Denied. Your IP: ${realIp}`, { status: 403 });
+        return NextResponse.redirect(new URL('/access-denied', req.url));
     }
 
     return NextResponse.next();
