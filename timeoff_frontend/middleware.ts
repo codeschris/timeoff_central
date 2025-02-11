@@ -18,7 +18,7 @@ export function middleware(req: MiddlewareRequest): NextResponse {
     const forwardedFor = req.headers.get('x-forwarded-for') || '';
     const realIp = forwardedFor.split(',')[0].trim() || req.ip || 'Unknown';
 
-    console.log(`Request received from IP: ${realIp}`);
+    // console.log(`Request received from IP: ${realIp}`);
 
     if (!allowedIP.includes(realIp)) {
         return new NextResponse(`Access Denied. Your IP: ${realIp}`, { status: 403 });
