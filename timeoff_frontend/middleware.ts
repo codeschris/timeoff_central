@@ -13,7 +13,7 @@ interface MiddlewareRequest {
 */}
 
 export function middleware(req: MiddlewareRequest): NextResponse {
-    const allowedIP = ['192.168.1.19', '192.168.21.87', '::1'];
+    const allowedIP = ['192.168.1.19', '192.168.21.87', '41.139.159.153', '::1'];
 
     const forwardedFor = req.headers.get('x-forwarded-for') || '';
     const realIp = forwardedFor.split(',')[0].trim() || req.ip || 'Unknown';
