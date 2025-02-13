@@ -205,6 +205,16 @@ export async function fetchEmployeeLeaveLogs(employee_id: string) {
   return response.data;
 }
 
+// Retrieve Attendance Logs
+export async function fetchEmployeeAttendanceReport(employee_id: string) {
+  const response = await API.get(`/clock-in-out-records/${employee_id}`);
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch attendance logs.");
+  }
+  return response.data;
+}
+
+
 // Fetch pending leave requests
 export const fetchPendingLeaveRequests = async (employeeId: string) => {
   try {
