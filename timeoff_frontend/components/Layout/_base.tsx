@@ -27,7 +27,7 @@ interface LayoutComponentProps {
 export default function LayoutComponent({ children }: LayoutComponentProps) {
   const pathname = usePathname();
   const isLoginPage =
-  ["/auth/login", "/auth/reset-password"].includes(pathname ?? "");
+  ["/auth/login", "/auth/reset-password", "/access-denied"].includes(pathname ?? "");
 
   return isLoginPage ? (
     <ThemeProvider

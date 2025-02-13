@@ -3,16 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
-import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs, fetchPendingLeaveRequests, approveLeaveRequest } from '@/pages/api/utils/endpoints';
+import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs, fetchPendingLeaveRequests, approveLeaveRequest, fetchAttendanceRecords } from '@/pages/api/utils/endpoints';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import LeaveLogsPDF from '@/components/LeaveLogsPDF';
 import { Button } from '@/components/ui/button';
 import AttendanceTable from '@/components/attendance-table';
 import ClockInOutButton from '@/components/clocking-button';
+import AttendanceReportsPDF from '@/components/AttendanceRecordsPDF';
 
 interface Employee {
     id: string;
     employee_id: string;
+    email: string;
     name: string;
     role: string;
     total_days: number;
@@ -44,40 +46,83 @@ const EmployeePage = () => {
     const [leaveHistory, setLeaveHistory] = useState<LeaveHistory[]>([]);
     const [pendingRequests, setPendingRequests] = useState<PendingLeaveRequest[]>([]);
     const [loading, setLoading] = useState(false);
-    const [logs, setLogs] = useState<any[]>([]);
+    const [leaveLogs, setLeaveLogs] = useState<any[]>([]);
+    const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+    const [leaveFetched, setLeaveFetched] = useState(false);
+    const [attendanceFetched, setAttendanceFetched] = useState(false);
 
-    const handleFetchLogs = async (employee_id: string) => {
+    useEffect(() => {
+        if (id) {
+            const fetchEmployeeData = async () => {
+                try {
+                    const [empData, leaveData, pendingData] = await Promise.all([
+                        returnEmployee(id as string),
+                        getLeaveHistory(id as string),
+                        fetchPendingLeaveRequests(id as string),
+                    ]);
+                    setEmployee(empData);
+                    setLeaveHistory(leaveData);
+                    setPendingRequests(pendingData);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+
+            fetchEmployeeData();
+        }
+    }, [id]);
+
+    const handleFetchLeaveLogs = async () => {
+        if (leaveFetched) return; // Prevent refetching
         setLoading(true);
         try {
-            const data = await fetchEmployeeLeaveLogs(employee_id);
+            const data = await fetchEmployeeLeaveLogs(employee!.employee_id);
             if (data.length === 0) {
                 alert("No leave logs available for this employee.");
-                setLoading(false);
                 return;
             }
-            setLogs(data);
+            setLeaveLogs(data);
+            setLeaveFetched(true);
         } catch (error) {
-            console.error("Error fetching logs:", error);
+            console.error("Error fetching leave logs:", error);
             alert("Failed to fetch leave logs.");
         }
         setLoading(false);
     };
 
-    const handleApprove = async (id: string) => {
+    const handleFetchAttendanceLogs = async () => {
+        if (attendanceFetched) return;
+        setLoading(true);
         try {
-            await approveLeaveRequest(Number(id), "approve"); // Convert id to number
-            setPendingRequests(pendingRequests.filter(request => request.id !== id));
+            const data = await fetchAttendanceRecords(employee!.employee_id);
+            if (data.length === 0) {
+                alert("No attendance logs available for this employee.");
+                return;
+            }
+            setAttendanceLogs(data);
+            setAttendanceFetched(true);
+        } catch (error) {
+            console.error("Error fetching attendance logs:", error);
+            alert("Failed to fetch attendance logs.");
+        }
+        setLoading(false);
+    };
+
+    const handleApprove = async (leaveId: string) => {
+        try {
+            await approveLeaveRequest(Number(leaveId), "approve");
+            setPendingRequests(pendingRequests.filter(request => request.id !== leaveId));
             alert('Leave request approved.');
         } catch (error) {
             console.error('Error approving leave request:', error);
             alert('Failed to approve leave request.');
         }
     };
-    
-    const handleDeny = async (id: string) => {
+
+    const handleDeny = async (leaveId: string) => {
         try {
-            await approveLeaveRequest(Number(id), "deny"); // Convert id to number
-            setPendingRequests(pendingRequests.filter(request => request.id !== id));
+            await approveLeaveRequest(Number(leaveId), "deny");
+            setPendingRequests(pendingRequests.filter(request => request.id !== leaveId));
             alert('Leave request denied.');
         } catch (error) {
             console.error('Error denying leave request:', error);
@@ -85,44 +130,7 @@ const EmployeePage = () => {
         }
     };
 
-    useEffect(() => {
-        if (id) {
-            const fetchEmployee = async () => {
-                try {
-                    const data = await returnEmployee(id as string);
-                    setEmployee(data);
-                } catch (error) {
-                    console.error('Error fetching employee:', error);
-                }
-            };
-
-            const fetchLeaveHistory = async () => {
-                try {
-                    const history = await getLeaveHistory(id as string);
-                    setLeaveHistory(history);
-                } catch (error) {
-                    console.error('Error fetching leave history:', error);
-                }
-            };
-
-            const fetchPendingRequests = async () => {
-                try {
-                    const requests = await fetchPendingLeaveRequests(id as string);
-                    setPendingRequests(requests);
-                } catch (error) {
-                    console.error('Error fetching pending leave requests:', error);
-                }
-            };
-
-            fetchEmployee();
-            fetchLeaveHistory();
-            fetchPendingRequests();
-        }
-    }, [id]);
-
-    if (!employee) {
-        return <div>Loading...</div>;
-    }
+    if (!employee) return <div>Loading...</div>;
 
     return (
         <div className='flex container mx-auto px-4 md:px-20 py-5 flex-col items-center'>
@@ -133,32 +141,54 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
+                            <p className='mb-2'><strong>Email:</strong> {employee.email}</p>
                             <p className='mb-2'><strong>Role:</strong> {employee.role}</p>  
                             <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
                             <ClockInOutButton employee_id={employee.employee_id} />
                         </CardContent>
                     </Card>
                 </div>
-                <div className='w-full md:w-1/2 p-5'>
-                    <h2 className='text-lg font-bold'>Leave Logs</h2>
-                    <p className='text-md text-muted-foreground mb-5'>Download the employee&apos;s approved leave logs using the button below</p>
-                    <Button
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
-                        onClick={() => handleFetchLogs(employee.employee_id)}
-                        disabled={loading}
-                    >
-                        {loading ? "Fetching..." : "Fetch Leave Logs"}
-                    </Button>
+                {/** Logs download buttons for employee */}
+                <div className='w-full md:mx-3 md:w-1/2 flex flex-col gap-5'>
+                    <Card className='p-5'>
+                        <CardContent>
+                            <h2 className='text-lg font-bold mb-2'>Download Logs</h2>
+                            <p className='text-muted-foreground mb-3'>Click on the buttons to fetch and download logs for {employee.name}</p>
+                            <div className="flex flex-col gap-3">
+                                {/* Leave Logs Section */}
+                                <div className={`flex items-center w-full ${leaveFetched ? "justify-middle" : "justify-start"}`}>
+                                    <Button onClick={handleFetchLeaveLogs} className="md:w-1/3" disabled={leaveFetched || loading}>
+                                        {loading ? "Fetching..." : leaveFetched ? "Fetched" : "Fetch Leave Logs"}
+                                    </Button>
+                                    {leaveFetched && (
+                                        <PDFDownloadLink
+                                            document={<LeaveLogsPDF logs={leaveLogs} employeeName={employee.name} />}
+                                            fileName={`leave-logs-${employee.name}.pdf`}
+                                            className="bg-green-500 text-white md:w-1/3 mx-4 px-4 py-2 rounded"
+                                        >
+                                            Download Leave Logs
+                                        </PDFDownloadLink>
+                                    )}
+                                </div>
 
-                    {logs.length > 0 && (
-                        <PDFDownloadLink
-                            document={<LeaveLogsPDF logs={logs} employeeName={employee.name} />}
-                            fileName={`leave-logs-${employee.name}.pdf`}
-                            className="bg-green-500 text-white px-4 py-2 rounded ml-2"
-                        >
-                            Download Logs
-                        </PDFDownloadLink>
-                    )}
+                                {/* Attendance Logs Section */}
+                                <div className={`flex items-center w-full ${attendanceFetched ? "justify-middle" : "justify-start"}`}>
+                                    <Button onClick={handleFetchAttendanceLogs} className="md:w-1/3" disabled={attendanceFetched || loading}>
+                                        {loading ? "Fetching..." : attendanceFetched ? "Fetched" : "Fetch Attendance Logs"}
+                                    </Button>
+                                    {attendanceFetched && (
+                                        <PDFDownloadLink
+                                            document={<AttendanceReportsPDF logs={attendanceLogs} employeeName={employee.name} />}
+                                            fileName={`attendance-reports-${employee.name}.pdf`}
+                                            className="bg-green-500 text-white md:w-1/3 mx-4 px-4 py-2 rounded"
+                                        >
+                                            Download Attendance Report
+                                        </PDFDownloadLink>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 

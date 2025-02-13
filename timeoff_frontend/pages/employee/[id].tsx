@@ -13,6 +13,7 @@ interface Employee {
     employee_id: string;
     name: string;
     role: string;
+    email: string;
     total_days: number;
     days_taken: number;
 }
@@ -90,6 +91,7 @@ const EmployeePage = () => {
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
                             <p className='mb-2'><strong>ID:</strong> {employee.employee_id}</p>
+                            <p className='mb-2'><strong>Email:</strong> {employee.email}</p>
                             <p className='mb-2'><strong>Role:</strong> {employee.role}</p>
                             <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
                             <p className='text-sm text-muted-foreground'>When clocking in, click the button. Do the same when clocking out</p>

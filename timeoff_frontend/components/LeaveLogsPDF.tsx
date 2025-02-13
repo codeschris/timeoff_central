@@ -2,7 +2,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
-// Define styles for the PDF
 const styles = StyleSheet.create({
     page: { padding: 20 },
     title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
