@@ -122,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={[{ name: "SolFruit", logo: GalleryVerticalEnd, plan: "Timeoff (Enterprise)" }]} />
+        <TeamSwitcher teams={[{ name: "Solfruit Kenya Limited", logo: GalleryVerticalEnd, plan: "Timeoff (Enterprise)" }]} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
