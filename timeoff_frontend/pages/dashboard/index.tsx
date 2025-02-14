@@ -41,7 +41,9 @@ const Dashboard = () =>  {
         </div>
         <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
           <span className="font-extrabold text-xl md:text-3xl">People on leave</span>
-          <span className="self-end text-lg md:text-3xl font-bold">5</span>
+          <span className="self-end text-lg md:text-3xl font-bold">
+            {recentActivities.filter(activity => activity.purpose.toLowerCase().includes("leave")).length}
+          </span>
         </div>
         <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
           <span className="font-extrabold text-xl md:text-3xl">Total Leave Days Requested</span>
