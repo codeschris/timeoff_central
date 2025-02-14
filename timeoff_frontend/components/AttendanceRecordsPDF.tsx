@@ -4,7 +4,7 @@ import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
     page: { padding: 20 },
-    title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+    title: { fontSize: 14, fontWeight: 'bold', marginBottom: 10 },
     tableHeader: { fontSize: 12, fontWeight: 'bold', marginBottom: 5 },
     row: { flexDirection: 'row', borderBottom: '1px solid #ccc', padding: 5 },
     column: { flex: 1, fontSize: 10 },
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
 const AttendanceReportsPDF = ({ logs, employeeName }: { logs: any[], employeeName: string }) => (
     <Document>
         <Page style={styles.page}>
-            <Text style={styles.title}>Attendance Logs for {employeeName}</Text>
+            <Text style={styles.title}>ATTENDANCE LOGS FOR {employeeName}</Text>
             <View style={styles.row}>
                 <Text style={[styles.column, styles.tableHeader]}>Date</Text>
                 <Text style={[styles.column, styles.tableHeader]}>Clock In</Text>
