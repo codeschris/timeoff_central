@@ -36,9 +36,9 @@ export default function AttendanceRecord() {
 
     return (
         <div className="col-span-1 md:col-span-2">
-            <Card>
+            <Card className="shadow-md">
                 <CardContent>
-                    <h2 className="text-xl font-bold my-4">Attendance Record</h2>
+                    <h2 className="text-xl font-bold mx-4 my-4">Attendance Record</h2>
                     
                     {loading ? (
                         <p>Loading...</p>

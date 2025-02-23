@@ -70,7 +70,7 @@ export function RegisterForm() {
     ];
 
     const roleOptions = [
-        { value: "HR", label: "Human Resource Manager" },
+        { value: "Human Resource Manager", label: "Human Resource Manager" },
         { value: "General Manager", label: "General Manager" },
         { value: "Assistant Quality Assurance Manager", label: "Assistant Quality Assurance Manager" },
         { value: "Procurement Manager", label: "Procurement Manager" },
