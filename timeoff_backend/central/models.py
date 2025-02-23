@@ -42,7 +42,7 @@ class User(AbstractUser):
     )
     
     MANAGEMENT_ROLE_CHOICES = (
-        ('HR', 'Human Resource Manager'),
+        ('Human Resource Manager', 'Human Resource Manager'),
         ('General Manager', 'General Manager'),
         ('Assistant Quality Assurance Manager', 'Assistant Quality Assurance Manager'),
         ('Procurement Manager', 'Procurement Manager'),
