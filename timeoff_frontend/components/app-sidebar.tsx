@@ -1,7 +1,8 @@
 import * as React from "react"
+import Image from "next/image"
 import {
   User2,
-  GalleryVerticalEnd,
+  // GalleryVerticalEnd,
   Settings2,
   BookA,
 } from "lucide-react"
@@ -9,18 +10,20 @@ import { useRouter } from "next/router"
 import { fetchUserProfile } from "@/pages/api/utils/endpoints"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 
 const managementNav = [
   {
-    title: "Pages",
+    title: "Dashboard",
     url: "#",
     icon: BookA,
     isActive: true,
@@ -37,18 +40,6 @@ const managementNav = [
     icon: User2,
     items: [
       {
-        title: "List All",
-        url: "/dashboard/employees",
-      },
-      {
-        title: "Search Employee",
-        url: "/dashboard/employees/search_employees",
-      },
-      {
-        title: "Print approved leaves",
-        url: "/dashboard/print-approved-leaves",
-      },
-      {
         title: "Register new employee",
         url: "/auth/register-employee",
       },
@@ -59,10 +50,6 @@ const managementNav = [
     url: "#",
     icon: Settings2,
     items: [
-      {
-        title: "Profile",
-        url: "/dashboard/profile",
-      },
       {
         title: "Reset password",
         url: "/auth/reset-password",
@@ -122,7 +109,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={[{ name: "Solfruit Kenya Limited", logo: GalleryVerticalEnd, plan: "Timeoff (Enterprise)" }]} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="xs" asChild>
+              <a href="#">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-inherit text-sidebar-primary-foreground">
+                  <Image src="/solfruit-logo.png" height={40} width={40} alt="Solfruit Logo" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold">Solfruit Kenya Limited</span>
+                  <span className="">We transparently deliver quality, wrapped in peace of mind.</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />

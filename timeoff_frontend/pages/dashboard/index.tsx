@@ -6,6 +6,7 @@ import EmployeesListTable from "@/components/employees-table";
 import { useEffect, useState } from "react";
 import { returnEmployees, getRecentActivities } from "@/pages/api/utils/endpoints";
 import withAuth from "@/components/context/HOC/withAuth";
+import { User, Users, Calendar } from "lucide-react";
 
 interface Activity {
   user: string;
@@ -33,31 +34,45 @@ const Dashboard = () =>  {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 grid-cols-2 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">Total Employees</span>
-          <span className="self-end text-lg md:text-3xl font-bold">{totalEmployees}</span>
+    <div className="text-black mt-6 flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="grid auto-rows-min gap-4 grid-cols-1 md:grid-cols-3">
+        <div className="rounded-xl shadow-md hover:transition-all hover:shadow-sm bg-white/70 flex items-center p-4 h-24">
+          <div className="rounded-full bg-yellow-300 p-2 mr-4">
+            <Users className="text-black" />
+          </div>
+          <div>
+            <span className="font-extrabold text-lg md:text-xl block">Total Employees</span>
+            <span className="text-md md:text-xl font-bold">{totalEmployees}</span>
+          </div>
         </div>
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">People on leave</span>
-          <span className="self-end text-lg md:text-3xl font-bold">
-            {recentActivities.filter(activity => activity.purpose.toLowerCase().includes("leave")).length}
-          </span>
+        <div className="rounded-xl shadow-md hover:transition-all hover:shadow-sm bg-white/70 flex items-center p-4 h-24">
+          <div className="rounded-full bg-yellow-300 p-2 mr-4">
+            <User className="text-black" />
+          </div>
+          <div>
+            <span className="font-extrabold text-lg md:text-xl block">People on leave</span>
+            <span className="text-md md:text-xl font-bold">
+              {recentActivities.filter(activity => activity.purpose.toLowerCase().includes("leave")).length}
+            </span>
+          </div>
         </div>
-        <div className="aspect-video rounded-xl bg-muted/50 flex flex-col justify-between p-2 md:p-4">
-          <span className="font-extrabold text-xl md:text-3xl">Total Leave Days Requested</span>
-          <span className="self-end text-lg md:text-3xl font-bold">
-            {recentActivities.reduce((total, activity) => total + activity.days_requested, 0)}
-          </span>
+        <div className="rounded-xl shadow-md hover:transition-all hover:shadow-sm bg-white/70 flex items-center p-4 h-24">
+          <div className="rounded-full bg-yellow-300 p-2 mr-4">
+            <Calendar className="text-black" />
+          </div>
+          <div>
+            <span className="font-extrabold text-lg md:text-xl block">Total Leave Days Requested</span>
+            <span className="text-md md:text-xl font-bold">
+              {recentActivities.reduce((total, activity) => total + activity.days_requested, 0)}
+            </span>
+          </div>
         </div>
       </div>
       <div className="grid auto-rows-min gap-4 grid-cols-1 md:grid-cols-2">
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
-          <h2 className="text-lg font-bold mb-4">Employees List</h2>
+        <div className="min-h-[100vh] shadow-md flex-1 rounded-xl bg-white/70 md:min-h-min p-4">
           <EmployeesListTable />
         </div>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
+        <div className="md:h-[722px] shadow-md flex-1 rounded-xl bg-white/70 md:min-h-min p-4">
           <h2 className="text-lg font-bold mb-4">Recent Activity</h2>
           <div>
             {recentActivities.length > 0 ? (

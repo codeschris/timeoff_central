@@ -136,7 +136,7 @@ const EmployeePage = () => {
         <div className='flex container mx-auto px-4 md:px-20 py-5 flex-col items-center'>
             <div className='flex w-full flex-col md:flex-row'>
                 <div className='w-full md:w-1/2'>
-                    <Card className='p-6 mb-6'>
+                    <Card className='shadow-md p-6 mb-6'>
                         <CardContent>
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
                             <p className='mb-2'><strong>Name:</strong> {employee.name}</p>
@@ -150,7 +150,7 @@ const EmployeePage = () => {
                 </div>
                 {/** Logs download buttons for employee */}
                 <div className='w-full md:mx-3 md:w-1/2 flex flex-col gap-5'>
-                    <Card className='p-5'>
+                    <Card className='shadow-md p-5'>
                         <CardContent>
                             <h2 className='text-lg font-bold mb-2'>Download Logs</h2>
                             <p className='text-muted-foreground mb-3'>Click on the buttons to fetch and download logs for {employee.name}</p>
@@ -195,7 +195,7 @@ const EmployeePage = () => {
             <div className='w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-6'>
                 {/* Pending Leave Requests Section */}
                 <div>
-                    <Card>
+                    <Card className='shadow-md'>
                         <CardContent>
                             <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
                             {pendingRequests.length > 0 ? (
@@ -243,7 +243,7 @@ const EmployeePage = () => {
 
                 {/* Leave History Section */}
                 <div>
-                    <Card>
+                    <Card className='shadow-md'>
                         <CardContent>
                             <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
                             {leaveHistory.length > 0 ? (
