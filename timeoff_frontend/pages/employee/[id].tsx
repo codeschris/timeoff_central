@@ -84,8 +84,8 @@ const EmployeePage = () => {
 
     return (
         <div className='flex container mx-auto px-4 md:px-20 py-5 flex-col items-center'>
-            <div className='flex w-full flex-col md:flex-row'>
-                <div className='w-full md:w-1/2'>
+            <div className='flex w-full gap-6 flex-col md:flex-row'>
+                <div className='w-1/2'>
                     <Card className='p-6 mb-6'>
                         <CardContent>
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
@@ -112,11 +112,7 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
-
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                {/* Leave History Section */}
-                <div className='w-full mt-6'>
+                <div className='w-1/2'>
                     <Card>
                         <CardContent>
                             <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
@@ -147,9 +143,11 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
+            </div>
 
+            <div className="w-full grid mt-6">
                 {/* Pending Leave Requests Section */}
-                <div className='w-full mt-6'>
+                <div className='w-full'>
                     <Card>
                         <CardContent>
                             <h2 className='text-xl font-bold my-4'>Pending Leave Requests</h2>
