@@ -85,7 +85,7 @@ const EmployeePage = () => {
     return (
         <div className='flex container mx-auto px-4 md:px-20 py-5 flex-col items-center'>
             <div className='flex w-full gap-6 flex-col md:flex-row'>
-                <div className='w-1/2'>
+                <div className='md:w-1/2'>
                     <Card className='p-6 mb-6'>
                         <CardContent>
                             <h1 className='text-2xl font-bold mb-4'>Employee Details</h1>
@@ -112,7 +112,7 @@ const EmployeePage = () => {
                         </CardContent>
                     </Card>
                 </div>
-                <div className='w-1/2'>
+                <div className='md:w-1/2'>
                     <Card>
                         <CardContent>
                             <h2 className='text-xl font-bold my-4'>Approved Leaves</h2>
