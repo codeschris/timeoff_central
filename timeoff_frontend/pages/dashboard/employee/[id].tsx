@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from '@/components/ui/table';
 import { returnEmployee, getLeaveHistory, fetchEmployeeLeaveLogs, fetchPendingLeaveRequests, approveLeaveRequest, fetchAttendanceRecords } from '@/pages/api/utils/endpoints';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import LeaveLogsPDF from '@/components/LeaveLogsPDF';
 import { Button } from '@/components/ui/button';
@@ -144,7 +146,21 @@ const EmployeePage = () => {
                             <p className='mb-2'><strong>Email:</strong> {employee.email}</p>
                             <p className='mb-2'><strong>Role:</strong> {employee.role}</p>  
                             <p className='mb-2'><strong>Leave Days Taken:</strong> {leaveHistory.reduce((total, leave) => total + leave.days_requested, 0)}</p>
-                            <ClockInOutButton employee_id={employee.employee_id} />
+                            <p className='text-sm text-muted-foreground'>When clocking in, click the button. Do the same when clocking out</p>
+                            <div className='flex gap-3'>
+                                <ClockInOutButton employee_id={employee.employee_id} />
+                                {/* Leave Request Section */}
+                                <div className='mt-7'>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button>Request Leave</Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <DatePickerWithRange />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
