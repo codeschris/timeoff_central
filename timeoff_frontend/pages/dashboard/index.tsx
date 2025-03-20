@@ -1,7 +1,3 @@
-/**
- * Handle types appropriately
- */
-
 import EmployeesListTable from "@/components/employees-table";
 import { useEffect, useState } from "react";
 import { returnEmployees, getRecentActivities } from "@/pages/api/utils/endpoints";
@@ -10,12 +6,14 @@ import { User, Users, Calendar } from "lucide-react";
 
 interface Activity {
   user: string;
+  employee_id: string;
   days_requested: number;
   purpose: string;
+  status: string;
   created_at: string;
 }
 
-const Dashboard = () =>  {
+const Dashboard = () => {
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
 
@@ -76,13 +74,15 @@ const Dashboard = () =>  {
           <h2 className="text-lg font-bold mb-4">Recent Activity</h2>
           <div>
             {recentActivities.length > 0 ? (
-              <ul className="list-disc list-inside">
+              <ul className="list-none list-inside">
                 {recentActivities.map((activity, index) => (
-                  <li key={index} className="mb-2">
-                    <strong>{activity.user}</strong> requested leave for{" "}
-                    <strong>{activity.days_requested} days</strong> (
-                    {activity.purpose}) on{" "}
-                    {new Date(activity.created_at).toLocaleDateString()}.
+                  <li key={index} className="shadow-md hover:shadow-sm rounded-lg p-4 my-4">
+                    <span className={`tag ${activity.status === "Approved" ? "tag-approved bg-green-600 text-white py-1 px-2 rounded-full text-sm" : "tag-pending bg-red-700 text-white py-1 px-2 rounded-full text-sm"}`}>
+                      {activity.status} Request
+                    </span>{" "}
+                    <strong>{activity.user}</strong> has {activity.status === "Approved" ? "taken leave for" : "requested"}{" "}
+                    ({activity.purpose}) on{" "}
+                    {new Date(activity.created_at.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/, '$2/$1/$3 $4:$5')).toLocaleDateString()}.
                   </li>
                 ))}
               </ul>
