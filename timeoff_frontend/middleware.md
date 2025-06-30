@@ -1,5 +1,6 @@
-// '192.168.1.19', '192.168.21.87', '41.139.159.153',
+`// '192.168.1.19', '192.168.21.87', '41.139.159.153',`
 
+```typescript
 import { NextResponse } from 'next/server';
 
 interface MiddlewareRequest {
@@ -9,7 +10,7 @@ interface MiddlewareRequest {
 }
 
 export function middleware(req: MiddlewareRequest): NextResponse {
-    const allowedIP = ['::1'];
+    const allowedIP = ['*'];
     const forwardedFor = req.headers.get('x-forwarded-for') || '';
     const realIp = forwardedFor.split(',')[0].trim() || req.ip || 'Unknown';
     
@@ -26,3 +27,4 @@ export function middleware(req: MiddlewareRequest): NextResponse {
 export const config = {
     matcher: '/:path*', // Apply to all routes
 };
+```
